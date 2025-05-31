@@ -1,0 +1,46 @@
+{
+    "appName": "MyAccounting",
+    "menuItems": [
+      {
+        "id": "dashboard",
+        "title": "Dashboard",
+        "icon": "dashboard"
+      },
+      {
+        "id": "documenten",
+        "title": "Documenten",
+        "icon": "folder"
+      },
+      {
+        "id": "berichten",
+        "title": "Berichten",
+        "icon": "chat"
+      },
+      {
+        "id": "boekhouder",
+        "title": "Mijn Boekhouder",
+        "icon": "account_balance"
+      },
+      {
+        "id": "rapportages",
+        "title": "Rapportages",
+        "icon": "bar_chart"
+      },
+      {
+        "id": "instellingen",
+        "title": "Instellingen",
+        "icon": "settings"
+      },
+      {
+        "id": "help",
+        "title": "Help",
+        "icon": "help"
+      },
+      {
+        "id": "agenda",
+        "title": "Agenda",
+        "icon": "calendar_today"
+      }
+    ]
+  }
+  

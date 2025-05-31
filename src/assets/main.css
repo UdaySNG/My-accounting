@@ -1,0 +1,35 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom colors */
+:root {
+  --slack-purple: #4A154B;
+  --slack-pink: #E01E5A;
+}
+
+.bg-slack-purple {
+  background-color: var(--slack-purple);
+}
+
+.bg-slack-pink {
+  background-color: var(--slack-pink);
+}
+
+.text-slack-purple {
+  color: var(--slack-purple);
+}
+
+/* Base styles */
+html {
+  @apply antialiased;
+}
+
+body {
+  @apply text-gray-900 dark:text-gray-100;
+}
+
+/* Transitions */
+.transition-colors {
+  @apply transition-all duration-200;
+} 
