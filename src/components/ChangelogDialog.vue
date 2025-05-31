@@ -137,7 +137,6 @@ const dialogRef = ref<HTMLElement | null>(null)
 const expandedVersions = ref<boolean[]>([])
 
 watch(() => props.isOpen, (newValue) => {
-  console.log('ChangelogDialog isOpen changed:', newValue)
   if (newValue) {
     // Expand only the latest version by default
     expandedVersions.value = changelogs.value.map((_, index) => index === 0)
@@ -190,7 +189,6 @@ const toggleVersion = (index: number) => {
 }
 
 const closeDialog = () => {
-  console.log('Closing dialog')
   emit('update:isOpen', false)
 }
 
@@ -205,7 +203,6 @@ const handleClickOutside = (event: MouseEvent) => {
 }
 
 onMounted(() => {
-  console.log('ChangelogDialog mounted, isOpen:', props.isOpen)
   document.addEventListener('mousedown', handleClickOutside)
   // Initialize expanded state
   expandedVersions.value = changelogs.value.map((_, index) => index === 0)
