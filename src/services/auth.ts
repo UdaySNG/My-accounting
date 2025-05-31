@@ -1,3 +1,5 @@
+import { apiClient } from './api'
+
 // API Endpoints voor Authenticatie
 export const API_ENDPOINTS = {
   // Basis URL (pas deze aan naar je backend URL)
@@ -67,92 +69,52 @@ interface UserResponse {
 export const authService = {
   // Inloggen
   async login(credentials: LoginRequest): Promise<AuthResponse> {
-    const response = await fetch(`${API_ENDPOINTS.BASE_URL}${API_ENDPOINTS.AUTH.LOGIN}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-      },
-      body: JSON.stringify(credentials)
-    });
+    try {
+      const response = await apiClient.post(API_ENDPOINTS.AUTH.LOGIN, credentials);
+      const data = response.data;
+      
+      // Store token and user data
+      if (data.data && data.data.token) {
+        localStorage.setItem('token', data.data.token);
+        localStorage.setItem('user', JSON.stringify(data.data.user));
+        console.log('Token stored:', data.data.token);
+      } else {
+        console.error('No token in response:', data);
+      }
 
-    if (!response.ok) {
-      throw new Error('Login failed');
+      return data;
+    } catch (error) {
+      console.error('Login error:', error);
+      throw error;
     }
-
-    return response.json();
   },
 
   // Registreren
   async register(userData: RegisterRequest): Promise<AuthResponse> {
-    const response = await fetch(`${API_ENDPOINTS.BASE_URL}${API_ENDPOINTS.AUTH.REGISTER}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-      },
-      body: JSON.stringify(userData)
-    });
-
-    if (!response.ok) {
-      throw new Error('Registration failed');
-    }
-
-    return response.json();
+    const response = await apiClient.post(API_ENDPOINTS.AUTH.REGISTER, userData);
+    return response.data;
   },
 
   // Gebruikersgegevens ophalen
   async getUser(): Promise<UserResponse> {
-    const token = localStorage.getItem('token');
-    if (!token) {
-      throw new Error('No token found');
-    }
-
-    const response = await fetch(`${API_ENDPOINTS.BASE_URL}${API_ENDPOINTS.AUTH.USER}`, {
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Accept': 'application/json'
-      }
-    });
-
-    if (!response.ok) {
-      throw new Error('Failed to get user data');
-    }
-
-    return response.json();
+    const response = await apiClient.get(API_ENDPOINTS.AUTH.USER);
+    return response.data;
   },
 
   // Uitloggen
   async logout(): Promise<void> {
-    const token = localStorage.getItem('token');
-    if (!token) {
-      return;
+    try {
+      await apiClient.post(API_ENDPOINTS.AUTH.LOGOUT);
+    } catch (error) {
+      console.error('Logout error:', error);
+    } finally {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      console.log('Token and user data removed');
     }
-
-    await fetch(`${API_ENDPOINTS.BASE_URL}${API_ENDPOINTS.AUTH.LOGOUT}`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Accept': 'application/json'
-      }
-    });
-
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
   },
 
   async forgotPassword(email: string): Promise<void> {
-    try {
-      await fetch(`${API_ENDPOINTS.BASE_URL}${API_ENDPOINTS.AUTH.FORGOT_PASSWORD}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        },
-        body: JSON.stringify({ email })
-      });
-    } catch (error) {
-      throw error;
-    }
+    await apiClient.post(API_ENDPOINTS.AUTH.FORGOT_PASSWORD, { email });
   }
 }; 

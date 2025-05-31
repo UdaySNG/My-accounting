@@ -257,9 +257,7 @@ const recentMessages = ref<Message[]>([
 const showChangelog = ref(false)
 
 const toggleChangelog = () => {
-  console.log('Toggle changelog clicked, current value:', showChangelog.value)
   showChangelog.value = true
-  console.log('New value:', showChangelog.value)
 }
 </script>
 

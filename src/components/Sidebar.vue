@@ -78,13 +78,10 @@ const router = useRouter()
 const loading = ref(false)
 
 const handleRouteClick = (id: string) => {
-  console.log('SIDEBAR: Route clicked:', id)
   const route = getRoute(id)
-  console.log('SIDEBAR: Navigating to route:', route)
 }
 
 const getRoute = (id: string): string => {
-  console.log('SIDEBAR: getRoute called with id:', id)
   switch (id) {
     case 'dashboard': return '/dashboard'
     case 'documenten': return '/documenten'
