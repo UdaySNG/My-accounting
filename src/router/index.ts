@@ -1,14 +1,16 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import MijnBoekhouder from '../views/MijnBoekhouder.vue'
-import Agenda from '../views/Agenda.vue'
-import Dashboard from '../views/Dashboard.vue'
-import Berichten from '../views/Berichten.vue'
-import Documenten from '../views/Documenten.vue'
-import Rapportages from '../views/Rapportages.vue'
-import Instellingen from '../views/Instellingen.vue'
-import Help from '../views/Help.vue'
+import type { RouteRecordRaw } from 'vue-router'
 
-const routes = [
+const MijnBoekhouder = () => import('../views/MijnBoekhouder.vue' as any)
+const Agenda = () => import('../views/Agenda.vue' as any)
+const Dashboard = () => import('../views/Dashboard.vue' as any)
+const Berichten = () => import('../views/Berichten.vue' as any)
+const Documenten = () => import('../views/Documenten.vue' as any)
+const Rapportages = () => import('../views/Rapportages.vue')
+const Instellingen = () => import('../views/Instellingen.vue')
+const Help = () => import('../views/Help.vue')
+
+const routes: RouteRecordRaw[] = [
   {
     path: '/',
     redirect: '/dashboard'

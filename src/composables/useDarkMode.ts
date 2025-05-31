@@ -1,4 +1,4 @@
-import { ref, watch } from 'vue'
+import { ref, watch, onMounted } from 'vue'
 
 type ThemeMode = 'light' | 'dark' | 'system'
 
@@ -48,7 +48,12 @@ export function useDarkMode() {
     }
   })
 
-  // Initialize on import
+  // Initialize on mount
+  onMounted(() => {
+    initDarkMode()
+  })
+
+  // Also initialize immediately to prevent flash
   initDarkMode()
 
   return {

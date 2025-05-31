@@ -11,14 +11,9 @@
 </template>
 
 <script setup lang="ts">
-import { useRoute } from 'vue-router'
 import Sidebar from './components/Sidebar.vue'
-import { useDarkMode } from './composables/useDarkMode'
 import { RouterView } from 'vue-router'
 import ChatbotButton from './components/ChatbotButton.vue'
-
-const route = useRoute()
-const { isDark, toggleDarkMode } = useDarkMode()
 </script>
 
 <style>

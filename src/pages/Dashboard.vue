@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import ChangelogDialog from '../components/ChangelogDialog.vue'
 
 const totalBalance = ref(0)
 const income = ref(0)
@@ -39,18 +40,19 @@ onMounted(() => {
 
 <template>
   <div class="relative max-w-7xl mx-auto px-4 py-10 space-y-10 bg-slate-50 dark:bg-slack-black min-h-screen transition-colors duration-300">
-    <!-- Floating Action Button -->
-    <button class="fixed z-50 bottom-8 right-8 bg-gradient-to-br from-slack-purple to-slack-pink text-white shadow-xl rounded-full w-16 h-16 flex items-center justify-center text-3xl hover:scale-105 transition-transform duration-200">
-      +
-    </button>
-
     <!-- Header -->
     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
       <div>
         <h1 class="text-4xl font-extrabold tracking-tight text-slack-black dark:text-white mb-2">Dashboard</h1>
         <p class="text-lg text-slack-gray dark:text-gray-400">Welcome back! Here's your financial overview.</p>
       </div>
+      <ChangelogDialog />
     </div>
+
+    <!-- Floating Action Button -->
+    <button class="fixed z-50 bottom-8 right-8 bg-gradient-to-br from-slack-purple to-slack-pink text-white shadow-xl rounded-full w-16 h-16 flex items-center justify-center text-3xl hover:scale-105 transition-transform duration-200">
+      +
+    </button>
 
     <!-- Summary Cards -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">

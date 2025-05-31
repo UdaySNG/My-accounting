@@ -1,6 +1,9 @@
 <template>
   <div class="p-6">
-    <h1 class="text-2xl font-bold mb-6 text-gray-900 dark:text-white">Dashboard</h1>
+    <div class="flex justify-between items-center mb-6">
+      <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Dashboard</h1>
+      <ChangelogDialog />
+    </div>
 
     <!-- Quick Stats -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
@@ -158,8 +161,26 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
+import ChangelogDialog from '../components/ChangelogDialog.vue'
 
-const deadlines = ref([
+interface Deadline {
+  id: number
+  title: string
+  description: string
+  daysLeft: string
+  priority: 'high' | 'medium' | 'low'
+  icon: string
+}
+
+interface Message {
+  id: number
+  title: string
+  content: string
+  time: string
+  icon: string
+}
+
+const deadlines = ref<Deadline[]>([
   {
     id: 1,
     title: 'BTW Aangifte Q1',
@@ -186,7 +207,7 @@ const deadlines = ref([
   }
 ])
 
-const recentMessages = ref([
+const recentMessages = ref<Message[]>([
   {
     id: 1,
     title: 'Boekhouder',
