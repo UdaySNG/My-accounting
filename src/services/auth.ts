@@ -1,4 +1,5 @@
 import { apiClient } from './api'
+import { useAuthStore } from '../stores/auth'
 
 // API Endpoints voor Authenticatie
 export const API_ENDPOINTS = {
@@ -73,10 +74,10 @@ export const authService = {
       const response = await apiClient.post(API_ENDPOINTS.AUTH.LOGIN, credentials);
       const data = response.data;
       
-      // Store token and user data
+      // Store token and user data using the auth store
       if (data.data && data.data.token) {
-        localStorage.setItem('token', data.data.token);
-        localStorage.setItem('user', JSON.stringify(data.data.user));
+        const authStore = useAuthStore();
+        authStore.setAuth(data.data.token, data.data.user);
         console.log('Token stored:', data.data.token);
       } else {
         console.error('No token in response:', data);
@@ -108,8 +109,8 @@ export const authService = {
     } catch (error) {
       console.error('Logout error:', error);
     } finally {
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
+      const authStore = useAuthStore();
+      authStore.clearAuth();
       console.log('Token and user data removed');
     }
   },

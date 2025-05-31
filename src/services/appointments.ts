@@ -18,13 +18,14 @@ export interface ApiAppointment {
 
 // Frontend format
 export interface Appointment {
-  id: string
+  id: number
   title: string
-  start: Date
-  end: Date
-  type: 'meeting' | 'call' | 'other'
   description: string
-  color: string
+  start_time: string
+  end_time: string
+  location?: string
+  type: 'meeting' | 'call' | 'other'
+  status: 'scheduled' | 'completed' | 'cancelled'
 }
 
 // API Request formats
@@ -92,5 +93,57 @@ export const appointmentsService = {
       console.error('Error fetching calendar:', error.response?.data?.message || error.message)
       throw error
     }
+  },
+
+  async getUpcomingAppointments(): Promise<Appointment[]> {
+    const today = new Date()
+    const endDate = new Date()
+    endDate.setMonth(endDate.getMonth() + 1) // Get appointments for the next month
+    
+    try {
+      const response = await apiClient.get('/appointments/calendar', {
+        params: {
+          start_date: today.toISOString().split('T')[0],
+          end_date: endDate.toISOString().split('T')[0]
+        }
+      })
+      
+      console.log('Calendar API Response:', response.data)
+      
+      // Handle both possible response formats
+      const appointments = response.data.data || response.data
+      
+      // Ensure we have an array and convert the dates
+      const formattedAppointments = (Array.isArray(appointments) ? appointments : []).map((appointment: ApiAppointment) => ({
+        id: appointment.id || 0,
+        title: appointment.title,
+        description: appointment.description || '',
+        start_time: appointment.start_time || appointment.start || '',
+        end_time: appointment.end_time || appointment.end || '',
+        location: appointment.location || '',
+        type: (appointment.type || 'meeting') as 'meeting' | 'call' | 'other',
+        status: (appointment.status || 'scheduled') as 'scheduled' | 'completed' | 'cancelled'
+      }))
+      
+      console.log('Formatted appointments:', formattedAppointments)
+      return formattedAppointments
+    } catch (error) {
+      console.error('Error fetching upcoming appointments:', error)
+      return []
+    }
+  },
+
+  async createAppointment(appointment: Omit<Appointment, 'id'>): Promise<Appointment> {
+    const response = await apiClient.post('/appointments', appointment)
+    return response.data.data
+  },
+
+  async updateAppointment(id: number, appointment: Partial<Appointment>): Promise<Appointment> {
+    const response = await apiClient.put(`/appointments/${id}`, appointment)
+    return response.data.data
+  },
+
+  async deleteAppointment(id: number): Promise<void> {
+    await apiClient.delete(`/appointments/${id}`)
   }
 } 

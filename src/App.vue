@@ -16,16 +16,14 @@ import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import Sidebar from './components/Sidebar.vue'
 import ChatbotButton from './components/ChatbotButton.vue'
+import { useAuthStore } from './stores/auth'
 
 const route = useRoute()
-
-const isAuthenticated = computed(() => {
-  return !!localStorage.getItem('token')
-})
+const authStore = useAuthStore()
 
 const showSidebar = computed(() => {
   const publicRoutes = ['/login', '/register', '/forgot-password']
-  return isAuthenticated.value && !publicRoutes.includes(route.path)
+  return authStore.isAuthenticated && !publicRoutes.includes(route.path)
 })
 </script>
 

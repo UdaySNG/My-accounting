@@ -2,18 +2,11 @@ import { apiClient } from './api'
 
 export interface Message {
   id: number
-  sender_id: number
-  receiver_id: number
+  title: string
   content: string
-  is_read: boolean
-  read_at: string | null
+  sender: string
   created_at: string
-  updated_at: string
-  sender: {
-    id: number
-    name: string
-    email: string
-  }
+  read: boolean
 }
 
 export interface MessageCreate {
@@ -36,6 +29,21 @@ export interface PaginatedResponse<T> {
 }
 
 export const messagesService = {
+  async getRecentMessages(): Promise<Message[]> {
+    const response = await apiClient.get('/messages', {
+      params: {
+        limit: 5,
+        sort: 'created_at',
+        order: 'desc'
+      }
+    })
+    return response.data.data.data
+  },
+
+  async markAsRead(messageId: number): Promise<void> {
+    await apiClient.put(`/messages/${messageId}/read`)
+  },
+
   async getAll(): Promise<Message[]> {
     const response = await apiClient.get<PaginatedResponse<Message>>('/messages')
     return response.data.data.data
@@ -44,10 +52,6 @@ export const messagesService = {
   async create(message: MessageCreate): Promise<Message> {
     const response = await apiClient.post<{ status: string; data: Message }>('/messages', message)
     return response.data.data
-  },
-
-  async markAsRead(messageId: number): Promise<void> {
-    await apiClient.post(`/messages/${messageId}/read`)
   },
 
   async getUnreadCount(): Promise<UnreadCount> {
