@@ -2,8 +2,29 @@
   <div class="p-6">
     <div class="flex justify-between items-center mb-6">
       <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Dashboard</h1>
-      <ChangelogDialog />
+      <button
+        @click="toggleChangelog"
+        class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+        title="Changelog"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="h-6 w-6"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+          />
+        </svg>
+      </button>
     </div>
+
+    <ChangelogDialog v-model:isOpen="showChangelog" />
 
     <!-- Quick Stats -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
@@ -230,6 +251,14 @@ const recentMessages = ref<Message[]>([
     icon: 'analytics'
   }
 ])
+
+const showChangelog = ref(false)
+
+const toggleChangelog = () => {
+  console.log('Toggle changelog clicked, current value:', showChangelog.value)
+  showChangelog.value = true
+  console.log('New value:', showChangelog.value)
+}
 </script>
 
 <style scoped>

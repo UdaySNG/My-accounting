@@ -1,121 +1,246 @@
 <template>
-  <div>
-    <button
-      @click="isOpen = true"
-      class="fixed top-4 right-4 p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors z-[100]"
-      title="Changelog"
-    >
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        class="h-6 w-6"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke="currentColor"
-      >
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="2"
-          d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-        />
-      </svg>
-    </button>
+  <div v-if="isOpen" class="fixed inset-0 z-50 flex items-center justify-center">
+    <!-- Backdrop with blur effect -->
+    <div class="absolute inset-0 bg-black/30 backdrop-blur-sm" @click="closeDialog"></div>
+    
+    <!-- Dialog -->
+    <div ref="dialogRef" class="relative bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-xl mx-4">
+      <!-- Header -->
+      <div class="flex justify-between items-center p-4 border-b border-gray-200 dark:border-gray-700">
+        <h2 class="text-xl font-bold text-gray-900 dark:text-white">Changelog</h2>
+        <button @click="closeDialog" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+          <span class="sr-only">Close</span>
+          <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
 
-    <Transition
-      enter-active-class="transition duration-200 ease-out"
-      enter-from-class="transform scale-95 opacity-0"
-      enter-to-class="transform scale-100 opacity-100"
-      leave-active-class="transition duration-150 ease-in"
-      leave-from-class="transform scale-100 opacity-100"
-      leave-to-class="transform scale-95 opacity-0"
-    >
-      <div
-        v-if="isOpen"
-        class="fixed inset-0 z-[200] overflow-y-auto"
-        @click.self="isOpen = false"
-      >
-        <div class="fixed inset-0 bg-black/30 backdrop-blur-sm" @click="isOpen = false"></div>
-        
-        <div class="flex min-h-screen items-center justify-center p-4 relative">
-          <div
-            class="w-full max-w-2xl rounded-lg bg-white dark:bg-gray-800 shadow-xl"
-          >
-            <div class="p-6">
-              <div class="flex items-center justify-between mb-4">
-                <h2 class="text-xl font-semibold text-gray-900 dark:text-white">
-                  Changelog
-                </h2>
-                <button
-                  @click="isOpen = false"
-                  class="text-gray-400 hover:text-gray-500 dark:hover:text-gray-300"
-                >
-                  <svg
-                    class="h-6 w-6"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M6 18L18 6M6 6l12 12"
-                    />
-                  </svg>
-                </button>
+      <!-- Content -->
+      <div class="max-h-[60vh] overflow-y-auto p-4">
+        <div class="space-y-6">
+          <div v-for="(changelog, index) in changelogs" :key="index" class="relative">
+            <!-- Version header -->
+            <div class="flex items-center justify-between cursor-pointer" @click="toggleVersion(index)">
+              <div class="flex items-center">
+                <div class="w-7 h-7 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
+                  <span class="text-blue-600 dark:text-blue-400 font-semibold text-sm">v{{ changelog.version }}</span>
+                </div>
+                <div class="ml-3">
+                  <h3 class="text-base font-semibold text-gray-900 dark:text-white">{{ changelog.version }}</h3>
+                  <span class="text-xs text-gray-500 dark:text-gray-400">{{ changelog.date }}</span>
+                </div>
               </div>
-              <div class="space-y-4">
-                <div
-                  v-for="(log, index) in changelogs"
-                  :key="index"
-                  class="border-b border-gray-200 dark:border-gray-700 pb-4 last:border-0"
+              <button class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+                <svg 
+                  class="w-5 h-5 transform transition-transform duration-200"
+                  :class="{ 'rotate-180': expandedVersions[index] }"
+                  fill="none" 
+                  viewBox="0 0 24 24" 
+                  stroke="currentColor"
                 >
-                  <div class="flex items-center gap-2 mb-2">
-                    <span
-                      class="text-sm font-medium text-gray-900 dark:text-white"
-                      >{{ log.version }}</span
-                    >
-                    <span class="text-sm text-gray-500 dark:text-gray-400">{{
-                      log.date
-                    }}</span>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+            </div>
+
+            <!-- Changes -->
+            <transition
+              enter-active-class="transition-all duration-600 ease-out-quart"
+              enter-from-class="max-h-0"
+              enter-to-class="max-h-[500px]"
+              leave-active-class="transition-all duration-600 ease-in-quart"
+              leave-from-class="max-h-[500px]"
+              leave-to-class="max-h-0"
+            >
+              <div 
+                v-if="expandedVersions[index]"
+                class="ml-4 mt-3 space-y-4"
+              >
+                <!-- Features -->
+                <div v-if="changelog.features?.length" class="relative">
+                  <div class="flex items-center mb-1">
+                    <div class="w-1.5 h-1.5 rounded-full bg-green-500"></div>
+                    <h4 class="ml-2 text-xs font-medium text-green-600 dark:text-green-400">Nieuwe Features</h4>
                   </div>
-                  <ul class="list-disc list-inside space-y-1 text-gray-600 dark:text-gray-300">
-                    <li v-for="(change, changeIndex) in log.changes" :key="changeIndex">
-                      {{ change }}
+                  <ul class="space-y-1">
+                    <li v-for="(feature, fIndex) in changelog.features" :key="fIndex" 
+                        class="flex items-start">
+                      <div class="flex-shrink-0 w-1.5 h-1.5 mt-1.5 rounded-full bg-green-500"></div>
+                      <span class="ml-2 text-sm text-gray-600 dark:text-gray-300">{{ feature }}</span>
+                    </li>
+                  </ul>
+                </div>
+
+                <!-- Fixes -->
+                <div v-if="changelog.fixes?.length" class="relative">
+                  <div class="flex items-center mb-1">
+                    <div class="w-1.5 h-1.5 rounded-full bg-red-500"></div>
+                    <h4 class="ml-2 text-xs font-medium text-red-600 dark:text-red-400">Bug Fixes</h4>
+                  </div>
+                  <ul class="space-y-1">
+                    <li v-for="(fix, fIndex) in changelog.fixes" :key="fIndex" 
+                        class="flex items-start">
+                      <div class="flex-shrink-0 w-1.5 h-1.5 mt-1.5 rounded-full bg-red-500"></div>
+                      <span class="ml-2 text-sm text-gray-600 dark:text-gray-300">{{ fix }}</span>
+                    </li>
+                  </ul>
+                </div>
+
+                <!-- Improvements -->
+                <div v-if="changelog.improvements?.length" class="relative">
+                  <div class="flex items-center mb-1">
+                    <div class="w-1.5 h-1.5 rounded-full bg-blue-500"></div>
+                    <h4 class="ml-2 text-xs font-medium text-blue-600 dark:text-blue-400">Verbeteringen</h4>
+                  </div>
+                  <ul class="space-y-1">
+                    <li v-for="(improvement, iIndex) in changelog.improvements" :key="iIndex" 
+                        class="flex items-start">
+                      <div class="flex-shrink-0 w-1.5 h-1.5 mt-1.5 rounded-full bg-blue-500"></div>
+                      <span class="ml-2 text-sm text-gray-600 dark:text-gray-300">{{ improvement }}</span>
                     </li>
                   </ul>
                 </div>
               </div>
-            </div>
+            </transition>
+
+            <!-- Vertical line between versions -->
+            <div v-if="index < changelogs.length - 1" 
+                 class="absolute left-3.5 top-12 bottom-0 w-px bg-gray-200 dark:bg-gray-700"></div>
           </div>
         </div>
       </div>
-    </Transition>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted, onUnmounted, watch } from 'vue'
 
 interface Changelog {
   version: string
   date: string
-  changes: string[]
+  features?: string[]
+  fixes?: string[]
+  improvements?: string[]
 }
 
-const isOpen = ref(false)
+const props = defineProps<{
+  isOpen: boolean
+}>()
+
+const emit = defineEmits<{
+  (e: 'update:isOpen', value: boolean): void
+}>()
+
+const dialogRef = ref<HTMLElement | null>(null)
+const expandedVersions = ref<boolean[]>([])
+
+watch(() => props.isOpen, (newValue) => {
+  console.log('ChangelogDialog isOpen changed:', newValue)
+  if (newValue) {
+    // Expand only the latest version by default
+    expandedVersions.value = changelogs.value.map((_, index) => index === 0)
+  }
+})
 
 const changelogs = ref<Changelog[]>([
   {
-    version: 'v1.0.0',
+    version: '1.1.0',
+    date: '2024-03-21',
+    features: [
+      'Toegevoegd: Changelog dialog met versiegeschiedenis',
+      'Toegevoegd: Dark mode ondersteuning',
+      'Toegevoegd: Verbeterde navigatie met breadcrumbs'
+    ],
+    improvements: [
+      'Verbeterde laadtijd van het dashboard',
+      'Geoptimaliseerde database queries',
+      'Verbeterde mobiele weergave'
+    ]
+  },
+  {
+    version: '1.0.1',
     date: '2024-03-20',
-    changes: [
-      'Initial release of the platform',
-      'Added user authentication',
-      'Implemented dashboard',
-      'Added basic accounting features'
+    fixes: [
+      'Opgelost: Probleem met factuur generatie',
+      'Opgelost: BTW berekening in rapportages',
+      'Opgelost: Login probleem op mobiele apparaten'
+    ],
+    improvements: [
+      'Verbeterde foutmeldingen',
+      'Toegevoegde validatie voor factuurgegevens'
+    ]
+  },
+  {
+    version: '1.0.0',
+    date: '2024-03-19',
+    features: [
+      'Eerste release van het platform',
+      'Dashboard met key metrics',
+      'Document management systeem',
+      'Berichtensysteem',
+      'BTW berekeningen en rapportages'
     ]
   }
-  // Add more changelogs as needed
 ])
-</script> 
+
+const toggleVersion = (index: number) => {
+  expandedVersions.value[index] = !expandedVersions.value[index]
+}
+
+const closeDialog = () => {
+  console.log('Closing dialog')
+  emit('update:isOpen', false)
+}
+
+// Handle outside click
+const handleClickOutside = (event: MouseEvent) => {
+  if (!dialogRef.value) return
+  
+  const target = event.target as Node
+  if (!dialogRef.value.contains(target)) {
+    closeDialog()
+  }
+}
+
+onMounted(() => {
+  console.log('ChangelogDialog mounted, isOpen:', props.isOpen)
+  document.addEventListener('mousedown', handleClickOutside)
+  // Initialize expanded state
+  expandedVersions.value = changelogs.value.map((_, index) => index === 0)
+})
+
+onUnmounted(() => {
+  document.removeEventListener('mousedown', handleClickOutside)
+})
+</script>
+
+<style scoped>
+.max-h-0 {
+  overflow: hidden;
+}
+
+.max-h-\[500px\] {
+  overflow: visible;
+}
+
+/* Add transition classes */
+.transition-all {
+  transition-property: all;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.duration-600 {
+  transition-duration: 600ms;
+}
+
+/* Smoother easing curves */
+.ease-in-quart {
+  transition-timing-function: cubic-bezier(0.5, 0, 0.75, 0);
+}
+
+.ease-out-quart {
+  transition-timing-function: cubic-bezier(0.25, 1, 0.5, 1);
+}
+</style> 
