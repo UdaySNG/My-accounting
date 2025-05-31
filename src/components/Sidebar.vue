@@ -1,72 +1,81 @@
 <template>
-  <aside 
-    class="h-full bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 flex flex-col transition-all duration-300 relative"
-    :class="isCollapsed ? 'w-16' : 'w-64'"
-  >
-    <div class="flex items-center justify-center h-16 px-4 border-b border-gray-100 dark:border-gray-800">
-      <span 
-        class="text-2xl font-bold text-slack-purple dark:text-white transition-opacity duration-300 whitespace-nowrap"
-        :class="{ 'opacity-0 w-0': isCollapsed }"
-      >
-        {{ menuData.appName }}
-      </span>
-    </div>
-    <nav class="flex-1 px-2 py-6 space-y-2 sidebar-scroll">
-      <template v-for="item in menuData.menuItems" :key="item.id">
-        <RouterLink 
-          :to="getRoute(item.id)" 
-          class="sidebar-link group" 
-          active-class="sidebar-link-active"
-          :title="isCollapsed ? item.title : ''"
-          @click="handleRouteClick(item.id)"
-        >
-          <span class="material-icons flex-shrink-0">{{ item.icon }}</span>
-          <span 
-            class="transition-opacity duration-300 ml-3"
-            :class="{ 'opacity-0 w-0': isCollapsed }"
-          >
-            {{ item.title }}
-          </span>
-        </RouterLink>
-      </template>
-    </nav>
-
-    <div class="px-2 pb-6">
-      <button 
-        @click="handleLogout" 
-        class="w-full flex items-center justify-center py-2 rounded-lg bg-slack-purple text-white font-semibold hover:bg-slack-pink transition-colors"
-        :title="isCollapsed ? 'Uitloggen' : ''"
-      >
-        <span class="material-icons flex-shrink-0">logout</span>
+  <div class="relative">
+    <aside 
+      class="h-full bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 flex flex-col transition-all duration-300 relative overflow-x-hidden"
+      :class="isCollapsed ? 'w-16' : 'w-64'"
+    >
+      <div class="flex items-center justify-center h-16 px-4 border-b border-gray-100 dark:border-gray-800 relative">
         <span 
-          class="transition-opacity duration-300 ml-2"
+          class="text-2xl font-bold text-slack-purple dark:text-white transition-opacity duration-300 whitespace-nowrap"
           :class="{ 'opacity-0 w-0': isCollapsed }"
         >
-          Uitloggen
+          {{ menuData.appName }}
         </span>
-      </button>
-    </div>
 
-    <button 
-      @click="toggleSidebar" 
-      class="absolute -right-3 top-8 p-1.5 rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors flex items-center justify-center shadow-sm"
-    >
-      <span class="material-icons text-gray-700 dark:text-gray-200 leading-none transition-transform duration-300 text-sm"
-        :class="{ 'rotate-180': isCollapsed }"
-      >
-        chevron_left
-      </span>
-    </button>
-  </aside>
+        <button 
+          @click="toggleSidebar" 
+          class="absolute rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors flex items-center justify-center shadow-sm z-50"
+          :class="isCollapsed ? 'right-1/2 translate-x-1/2 top-1/2 -translate-y-1/2' : '-right-3 top-1/2 -translate-y-1/2'"
+        >
+          <span class="material-icons text-gray-700 dark:text-gray-200 leading-none transition-transform duration-300 text-2xl"
+            :class="{ 'rotate-180': isCollapsed }"
+          >
+            chevron_left
+          </span>
+        </button>
+      </div>
+
+      <nav class="flex-1 px-2 py-6 space-y-2 overflow-y-auto overflow-x-hidden">
+        <template v-for="item in menuData.menuItems" :key="item.id">
+          <RouterLink 
+            :to="getRoute(item.id)" 
+            class="sidebar-link group" 
+            active-class="sidebar-link-active"
+            :title="isCollapsed ? item.title : ''"
+            @click="handleRouteClick(item.id)"
+          >
+            <span class="material-icons flex-shrink-0">{{ item.icon }}</span>
+            <span 
+              class="transition-opacity duration-300 ml-3"
+              :class="{ 'opacity-0 w-0': isCollapsed }"
+            >
+              {{ item.title }}
+            </span>
+          </RouterLink>
+        </template>
+      </nav>
+
+      <div class="px-2 py-4 border-t border-gray-100 dark:border-gray-800">
+        <button 
+          @click="handleLogout" 
+          class="w-full flex items-center justify-center py-2 rounded-lg bg-slack-purple text-white font-semibold hover:bg-slack-pink transition-colors"
+          :title="isCollapsed ? 'Uitloggen' : ''"
+          :disabled="loading"
+        >
+          <span class="material-icons flex-shrink-0">logout</span>
+          <span 
+            class="transition-opacity duration-300 ml-2"
+            :class="{ 'opacity-0 w-0': isCollapsed }"
+          >
+            {{ loading ? 'Bezig met uitloggen...' : 'Uitloggen' }}
+          </span>
+        </button>
+      </div>
+    </aside>
+  </div>
 </template>
 
 <script setup lang="ts">
 import { RouterLink, useRoute } from 'vue-router'
 import { ref } from 'vue'
 import menuData from '../data/menu.json'
+import { useRouter } from 'vue-router'
+import { authService } from '../services/auth'
 
 const isCollapsed = ref(false)
 const route = useRoute()
+const router = useRouter()
+const loading = ref(false)
 
 const handleRouteClick = (id: string) => {
   console.log('SIDEBAR: Route clicked:', id)
@@ -93,9 +102,16 @@ const toggleSidebar = () => {
   isCollapsed.value = !isCollapsed.value
 }
 
-const handleLogout = () => {
-  // Implement logout logic here
-  console.log('Logging out...')
+const handleLogout = async () => {
+  loading.value = true
+  try {
+    await authService.logout()
+    router.push('/login')
+  } catch (error) {
+    console.error('Logout failed:', error)
+  } finally {
+    loading.value = false
+  }
 }
 </script>
 
@@ -121,15 +137,5 @@ const handleLogout = () => {
 }
 .group:hover::after {
   @apply opacity-100;
-}
-
-.sidebar-scroll {
-  height: 100%;
-  overflow-y: auto;
-  -ms-overflow-style: none;  /* IE en Edge */
-  scrollbar-width: none;     /* Firefox */
-}
-.sidebar-scroll::-webkit-scrollbar {
-  display: none;
 }
 </style> 

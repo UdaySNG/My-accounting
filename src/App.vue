@@ -1,22 +1,40 @@
 <template>
-  <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
-    <div class="flex h-screen">
-      <Sidebar />
-      <main class="flex-1 overflow-auto">
-        <RouterView />
+  <div class="flex min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div class="flex w-full">
+      <Sidebar v-if="showSidebar" class="flex-shrink-0 z-40" />
+      <main class="flex-1 overflow-y-auto overflow-x-hidden px-4 sm:px-6 lg:px-8 z-0">
+        <router-view />
       </main>
     </div>
-    <ChatbotButton />
+    <ChatbotButton v-if="showSidebar" />
   </div>
 </template>
 
+
 <script setup lang="ts">
+import { computed } from 'vue'
+import { useRoute } from 'vue-router'
 import Sidebar from './components/Sidebar.vue'
-import { RouterView } from 'vue-router'
 import ChatbotButton from './components/ChatbotButton.vue'
+
+const route = useRoute()
+
+const isAuthenticated = computed(() => {
+  return !!localStorage.getItem('token')
+})
+
+const showSidebar = computed(() => {
+  const publicRoutes = ['/login', '/register', '/forgot-password']
+  return isAuthenticated.value && !publicRoutes.includes(route.path)
+})
 </script>
 
 <style>
+body {
+  margin: 0;
+  padding: 0;
+}
+
 #app {
   min-height: 100vh;
 }
