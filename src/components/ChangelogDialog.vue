@@ -23,8 +23,8 @@
             <!-- Version header -->
             <div class="flex items-center justify-between cursor-pointer" @click="toggleVersion(index)">
               <div class="flex items-center">
-                <div class="w-7 h-7 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
-                  <span class="text-blue-600 dark:text-blue-400 font-semibold text-sm">v{{ changelog.version }}</span>
+                <div class="w-7 h-7 rounded-full bg-slack-purple/10 dark:bg-slack-purple/30 flex items-center justify-center">
+                  <span class="text-slack-purple dark:text-slack-purple font-semibold text-sm">v{{ changelog.version }}</span>
                 </div>
                 <div class="ml-3">
                   <h3 class="text-base font-semibold text-gray-900 dark:text-white">{{ changelog.version }}</h3>
@@ -60,13 +60,13 @@
                 <!-- Features -->
                 <div v-if="changelog.features?.length" class="relative">
                   <div class="flex items-center mb-1">
-                    <div class="w-1.5 h-1.5 rounded-full bg-green-500"></div>
-                    <h4 class="ml-2 text-xs font-medium text-green-600 dark:text-green-400">Nieuwe Features</h4>
+                    <div class="w-1.5 h-1.5 rounded-full bg-slack-purple"></div>
+                    <h4 class="ml-2 text-xs font-medium text-slack-purple dark:text-slack-purple">Nieuwe Features</h4>
                   </div>
                   <ul class="space-y-1">
                     <li v-for="(feature, fIndex) in changelog.features" :key="fIndex" 
                         class="flex items-start">
-                      <div class="flex-shrink-0 w-1.5 h-1.5 mt-1.5 rounded-full bg-green-500"></div>
+                      <div class="flex-shrink-0 w-1.5 h-1.5 mt-1.5 rounded-full bg-slack-purple"></div>
                       <span class="ml-2 text-sm text-gray-600 dark:text-gray-300">{{ feature }}</span>
                     </li>
                   </ul>
@@ -75,13 +75,13 @@
                 <!-- Fixes -->
                 <div v-if="changelog.fixes?.length" class="relative">
                   <div class="flex items-center mb-1">
-                    <div class="w-1.5 h-1.5 rounded-full bg-red-500"></div>
-                    <h4 class="ml-2 text-xs font-medium text-red-600 dark:text-red-400">Bug Fixes</h4>
+                    <div class="w-1.5 h-1.5 rounded-full bg-slack-purple"></div>
+                    <h4 class="ml-2 text-xs font-medium text-slack-purple dark:text-slack-purple">Bug Fixes</h4>
                   </div>
                   <ul class="space-y-1">
                     <li v-for="(fix, fIndex) in changelog.fixes" :key="fIndex" 
                         class="flex items-start">
-                      <div class="flex-shrink-0 w-1.5 h-1.5 mt-1.5 rounded-full bg-red-500"></div>
+                      <div class="flex-shrink-0 w-1.5 h-1.5 mt-1.5 rounded-full bg-slack-purple"></div>
                       <span class="ml-2 text-sm text-gray-600 dark:text-gray-300">{{ fix }}</span>
                     </li>
                   </ul>
@@ -90,13 +90,13 @@
                 <!-- Improvements -->
                 <div v-if="changelog.improvements?.length" class="relative">
                   <div class="flex items-center mb-1">
-                    <div class="w-1.5 h-1.5 rounded-full bg-blue-500"></div>
-                    <h4 class="ml-2 text-xs font-medium text-blue-600 dark:text-blue-400">Verbeteringen</h4>
+                    <div class="w-1.5 h-1.5 rounded-full bg-slack-purple"></div>
+                    <h4 class="ml-2 text-xs font-medium text-slack-purple dark:text-slack-purple">Verbeteringen</h4>
                   </div>
                   <ul class="space-y-1">
                     <li v-for="(improvement, iIndex) in changelog.improvements" :key="iIndex" 
                         class="flex items-start">
-                      <div class="flex-shrink-0 w-1.5 h-1.5 mt-1.5 rounded-full bg-blue-500"></div>
+                      <div class="flex-shrink-0 w-1.5 h-1.5 mt-1.5 rounded-full bg-slack-purple"></div>
                       <span class="ml-2 text-sm text-gray-600 dark:text-gray-300">{{ improvement }}</span>
                     </li>
                   </ul>
@@ -145,8 +145,29 @@ watch(() => props.isOpen, (newValue) => {
 
 const changelogs = ref<Changelog[]>([
   {
+    version: '1.2.0',
+    date: '2025-05-03',
+    features: [
+      'Nieuwe integraties toegevoegd:',
+      '- Bankkoppelingen (Rabobank, ING)',
+      '- Boekhoudsoftware (Exact Online, Moneybird)',
+      '- Betaalproviders (Mollie, Stripe)',
+      '- Webwinkels (WooCommerce, Shopify)',
+      '- CRM (HubSpot, Salesforce)'
+    ],
+    improvements: [
+      'Verbeterde 2FA implementatie',
+      'Handmatige setup key optie',
+      'Verbeterde backup codes',
+      'Nieuwe 2FA setup interface',
+      'Sterkere wachtwoordvereisten',
+      'Verbeterde sessiebeheer',
+      'Nieuwe beveiligingsinstellingen'
+    ]
+  },
+  {
     version: '1.1.0',
-    date: '2024-03-21',
+    date: '2025-05-02',
     features: [
       'Toegevoegd: Changelog dialog met versiegeschiedenis',
       'Toegevoegd: Dark mode ondersteuning',
@@ -160,7 +181,7 @@ const changelogs = ref<Changelog[]>([
   },
   {
     version: '1.0.1',
-    date: '2024-03-20',
+    date: '2025-06-01',
     fixes: [
       'Opgelost: Probleem met factuur generatie',
       'Opgelost: BTW berekening in rapportages',
@@ -173,7 +194,7 @@ const changelogs = ref<Changelog[]>([
   },
   {
     version: '1.0.0',
-    date: '2024-03-19',
+    date: '2025-05-31',
     features: [
       'Eerste release van het platform',
       'Dashboard met key metrics',

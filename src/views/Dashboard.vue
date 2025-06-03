@@ -71,12 +71,12 @@
               <p class="text-sm font-medium text-gray-600 dark:text-gray-400">BTW te vorderen</p>
               <p class="text-2xl font-semibold text-gray-900 dark:text-white mt-1">€2.450,00</p>
             </div>
-            <div class="w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
-              <span class="material-icons text-blue-600 dark:text-blue-400">account_balance</span>
+            <div class="w-12 h-12 rounded-full bg-slack-purple/10 dark:bg-slack-purple/30 flex items-center justify-center">
+              <span class="material-icons text-slack-purple dark:text-slack-purple">account_balance</span>
             </div>
           </div>
           <div class="mt-4 flex items-center text-sm">
-            <span class="text-blue-600 dark:text-blue-400">Volgende aangifte: 31/03</span>
+            <span class="text-slack-purple dark:text-slack-purple">Volgende aangifte: 31/03</span>
           </div>
         </div>
 
@@ -120,14 +120,14 @@
                       <div class="flex-shrink-0">
                         <div class="w-10 h-10 rounded-full flex items-center justify-center"
                           :class="{
-                            'bg-blue-100 dark:bg-blue-900/30': item.type === 'meeting',
+                            'bg-slack-purple/10 dark:bg-slack-purple/30': item.type === 'meeting',
                             'bg-green-100 dark:bg-green-900/30': item.type === 'call',
                             'bg-purple-100 dark:bg-purple-900/30': item.type === 'other'
                           }"
                         >
                           <span class="material-icons"
                             :class="{
-                              'text-blue-600 dark:text-blue-400': item.type === 'meeting',
+                              'text-slack-purple dark:text-slack-purple': item.type === 'meeting',
                               'text-green-600 dark:text-green-400': item.type === 'call',
                               'text-purple-600 dark:text-purple-400': item.type === 'other'
                             }"

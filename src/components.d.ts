@@ -10,6 +10,7 @@ declare module 'vue' {
   export interface GlobalComponents {
     AppointmentModal: typeof import('./components/AppointmentModal.vue')['default']
     ChangelogDialog: typeof import('./components/ChangelogDialog.vue')['default']
+    Chatbot: typeof import('./components/Chatbot.vue')['default']
     ChatbotButton: typeof import('./components/ChatbotButton.vue')['default']
     ConfirmationDialog: typeof import('./components/ConfirmationDialog.vue')['default']
     Footer: typeof import('./components/Footer.vue')['default']

@@ -59,7 +59,7 @@
                 type="text" 
                 v-model="profile.name" 
                 :disabled="!isEditing"
-                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white disabled:bg-gray-100 dark:disabled:bg-gray-800 disabled:cursor-not-allowed"
+                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white disabled:bg-gray-100 dark:disabled:bg-gray-800 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-slack-purple focus:border-transparent"
               >
             </div>
             <div>
@@ -70,7 +70,7 @@
                 type="email" 
                 v-model="profile.email" 
                 :disabled="!isEditing"
-                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white disabled:bg-gray-100 dark:disabled:bg-gray-800 disabled:cursor-not-allowed"
+                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white disabled:bg-gray-100 dark:disabled:bg-gray-800 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-slack-purple focus:border-transparent"
               >
             </div>
             <div>
@@ -93,7 +93,7 @@
                 type="text" 
                 v-model="profile.company" 
                 :disabled="!isEditing"
-                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white disabled:bg-gray-100 dark:disabled:bg-gray-800 disabled:cursor-not-allowed"
+                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white disabled:bg-gray-100 dark:disabled:bg-gray-800 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-slack-purple focus:border-transparent"
               >
             </div>
           </div>
@@ -146,7 +146,7 @@
           <div class="space-y-4">
             <div>
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Thema</label>
-              <select v-model="appearance.theme" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+              <select v-model="appearance.theme" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-slack-purple focus:border-transparent">
                 <option value="system">Systeem standaard</option>
                 <option value="light">Licht</option>
                 <option value="dark">Donker</option>
@@ -154,14 +154,14 @@
             </div>
             <div>
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Taal</label>
-              <select v-model="appearance.language" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+              <select v-model="appearance.language" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-slack-purple focus:border-transparent">
                 <option value="nl">Nederlands</option>
                 <option value="en">English</option>
               </select>
             </div>
             <div>
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Tijdzone</label>
-              <select v-model="appearance.timezone" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+              <select v-model="appearance.timezone" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-slack-purple focus:border-transparent">
                 <option value="Europe/Amsterdam">Amsterdam (GMT+1)</option>
                 <option value="Europe/London">London (GMT)</option>
                 <option value="America/New_York">New York (GMT-5)</option>
@@ -182,7 +182,7 @@
                 <input 
                   v-model="security.currentPassword" 
                   :type="showCurrentPassword ? 'text' : 'password'"
-                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-slack-purple focus:border-transparent"
                 />
                 <button
                   type="button"
@@ -202,7 +202,7 @@
                   v-model="security.newPassword" 
                   :type="showNewPassword ? 'text' : 'password'"
                   :disabled="!security.currentPassword"
-                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white disabled:bg-gray-100 dark:disabled:bg-gray-800 disabled:cursor-not-allowed"
+                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white disabled:bg-gray-100 dark:disabled:bg-gray-800 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-slack-purple focus:border-transparent"
                 />
                 <button
                   type="button"
@@ -223,7 +223,7 @@
                   v-model="security.confirmPassword" 
                   :type="showConfirmPassword ? 'text' : 'password'"
                   :disabled="!security.currentPassword"
-                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white disabled:bg-gray-100 dark:disabled:bg-gray-800 disabled:cursor-not-allowed"
+                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white disabled:bg-gray-100 dark:disabled:bg-gray-800 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-slack-purple focus:border-transparent"
                 />
                 <button
                   type="button"
@@ -343,7 +343,7 @@
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Boekjaar <span class="text-red-500">*</span>
               </label>
-              <select v-model="fiscal.fiscalYear" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+              <select v-model="fiscal.fiscalYear" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-slack-purple focus:border-transparent">
                 <option value="calendar">Kalenderjaar (1 jan - 31 dec)</option>
                 <option value="fiscal">Fiscaal jaar (1 mei - 30 apr)</option>
                 <option value="custom">Aangepast</option>
@@ -353,25 +353,25 @@
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Startdatum boekjaar <span class="text-red-500">*</span>
               </label>
-              <input type="date" v-model="fiscal.fiscalYearStart" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+              <input type="date" v-model="fiscal.fiscalYearStart" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-slack-purple focus:border-transparent">
             </div>
             <div>
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 BTW nummer <span class="text-red-500">*</span>
               </label>
-              <input type="text" v-model="fiscal.vatNumber" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+              <input type="text" v-model="fiscal.vatNumber" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-slack-purple focus:border-transparent">
             </div>
             <div>
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 KVK nummer <span class="text-red-500">*</span>
               </label>
-              <input type="text" v-model="fiscal.kvkNumber" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+              <input type="text" v-model="fiscal.kvkNumber" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-slack-purple focus:border-transparent">
             </div>
             <div>
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 BTW aangifte frequentie <span class="text-red-500">*</span>
               </label>
-              <select v-model="fiscal.vatFrequency" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+              <select v-model="fiscal.vatFrequency" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-slack-purple focus:border-transparent">
                 <option value="monthly">Maandelijks</option>
                 <option value="quarterly">Per kwartaal</option>
                 <option value="yearly">Jaarlijks</option>
@@ -390,7 +390,7 @@
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Factuur nummering <span class="text-red-500">*</span>
               </label>
-              <select v-model="invoice.numbering" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+              <select v-model="invoice.numbering" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-slack-purple focus:border-transparent">
                 <option value="yearly">Per jaar (2024-001)</option>
                 <option value="continuous">Doorlopend (0001)</option>
                 <option value="custom">Aangepast formaat</option>
@@ -400,19 +400,19 @@
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Aangepast formaat <span class="text-red-500">*</span>
               </label>
-              <input type="text" v-model="invoice.customFormat" placeholder="Bijv: INV-{YYYY}-{NNNN}" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+              <input type="text" v-model="invoice.customFormat" placeholder="Bijv: INV-{YYYY}-{NNNN}" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-slack-purple focus:border-transparent">
             </div>
             <div>
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Betaaltermijn (dagen) <span class="text-red-500">*</span>
               </label>
-              <input type="number" v-model="invoice.paymentTerm" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+              <input type="number" v-model="invoice.paymentTerm" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-slack-purple focus:border-transparent">
             </div>
             <div>
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Factuur template
               </label>
-              <select v-model="invoice.template" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+              <select v-model="invoice.template" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-slack-purple focus:border-transparent">
                 <option value="default">Standaard template</option>
                 <option value="modern">Modern design</option>
                 <option value="minimal">Minimaal design</option>
@@ -451,7 +451,7 @@
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Backup frequentie
               </label>
-              <select v-model="backup.frequency" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+              <select v-model="backup.frequency" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-slack-purple focus:border-transparent">
                 <option value="daily">Dagelijks</option>
                 <option value="weekly">Wekelijks</option>
                 <option value="monthly">Maandelijks</option>
@@ -471,7 +471,7 @@
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Bewaarperiode backups
               </label>
-              <select v-model="backup.retention" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+              <select v-model="backup.retention" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-slack-purple focus:border-transparent">
                 <option value="30">30 dagen</option>
                 <option value="90">90 dagen</option>
                 <option value="365">1 jaar</option>

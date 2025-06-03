@@ -3,7 +3,7 @@
     <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-md p-6">
       <div class="flex justify-between items-center mb-4">
         <h2 class="text-xl font-semibold">
-          {{ appointment ? 'Afspraak Bewerken' : 'Nieuwe Afspraak' }}
+          {{ appointment && 'id' in appointment ? 'Afspraak bewerken' : 'Afspraak aanmaken' }}
         </h2>
         <button @click="close" class="text-gray-500 hover:text-gray-700">
           <span class="material-icons">close</span>
@@ -19,7 +19,7 @@
             v-model="form.title"
             type="text"
             required
-            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-slack-purple focus:border-slack-purple dark:bg-gray-700 dark:text-white"
           />
         </div>
 
@@ -32,7 +32,7 @@
               v-model="form.start"
               type="datetime-local"
               required
-              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-slack-purple focus:border-slack-purple dark:bg-gray-700 dark:text-white"
             />
           </div>
           <div>
@@ -43,7 +43,7 @@
               v-model="form.end"
               type="datetime-local"
               required
-              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-slack-purple focus:border-slack-purple dark:bg-gray-700 dark:text-white"
             />
           </div>
         </div>
@@ -54,7 +54,7 @@
           </label>
           <select
             v-model="form.type"
-            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-slack-purple focus:border-slack-purple dark:bg-gray-700 dark:text-white"
           >
             <option value="meeting">Meeting</option>
             <option value="call">Telefoongesprek</option>
@@ -69,7 +69,7 @@
           <textarea
             v-model="form.description"
             rows="3"
-            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-slack-purple focus:border-slack-purple dark:bg-gray-700 dark:text-white"
           ></textarea>
         </div>
 
@@ -83,7 +83,7 @@
           </button>
           <button
             type="submit"
-            class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+            class="px-4 py-2 bg-slack-purple text-white rounded-lg hover:bg-slack-pink"
           >
             {{ appointment ? 'Opslaan' : 'Toevoegen' }}
           </button>
@@ -95,7 +95,7 @@
 
 <script setup lang="ts">
 import { ref, watch } from 'vue'
-import type { Appointment } from '../stores/calendar'
+import type { Appointment } from '../services/appointments'
 
 const props = defineProps<{
   isOpen: boolean
@@ -111,7 +111,7 @@ const form = ref({
   title: '',
   start: '',
   end: '',
-  type: 'meeting' as const,
+  type: 'meeting' as 'meeting' | 'call' | 'other',
   description: '',
   color: '#3B82F6'
 })
@@ -124,14 +124,14 @@ watch(() => props.appointment, (newAppointment) => {
       end: newAppointment.end.toISOString().slice(0, 16),
       type: newAppointment.type,
       description: newAppointment.description || '',
-      color: newAppointment.color
+      color: newAppointment.color || '#3B82F6'
     }
   } else {
     form.value = {
       title: '',
       start: '',
       end: '',
-      type: 'meeting',
+      type: 'meeting' as 'meeting' | 'call' | 'other',
       description: '',
       color: '#3B82F6'
     }
@@ -139,10 +139,19 @@ watch(() => props.appointment, (newAppointment) => {
 }, { immediate: true })
 
 function handleSubmit() {
+  const startDate = new Date(form.value.start)
+  const endDate = new Date(form.value.end)
+  
   emit('save', {
-    ...form.value,
-    start: new Date(form.value.start),
-    end: new Date(form.value.end)
+    title: form.value.title,
+    description: form.value.description,
+    start: startDate,
+    end: endDate,
+    start_time: startDate.toISOString(),
+    end_time: endDate.toISOString(),
+    type: form.value.type,
+    status: 'scheduled',
+    color: form.value.color
   })
 }
 

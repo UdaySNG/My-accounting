@@ -43,7 +43,7 @@
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
       <RouterLink 
         to="/agenda"
-        class="bg-blue-500 hover:bg-blue-600 text-white p-4 rounded-lg flex items-center justify-center space-x-2"
+        class="bg-slack-purple hover:bg-slack-pink text-white p-4 rounded-lg flex items-center justify-center space-x-2"
       >
         <span class="material-icons">calendar_today</span>
         <span>Afspraak Maken</span>
@@ -68,7 +68,7 @@
               <p class="font-medium">Jaarlijkse BTW Bespreking</p>
               <p class="text-sm text-gray-600 dark:text-gray-300">15 maart 2024 - 14:00</p>
             </div>
-            <button class="text-blue-500 hover:text-blue-600">Details</button>
+            <button class="text-slack-purple hover:text-slack-pink">Details</button>
           </div>
         </div>
         <div class="border-b pb-4">
@@ -77,7 +77,7 @@
               <p class="font-medium">Kwartaaloverzicht Q1</p>
               <p class="text-sm text-gray-600 dark:text-gray-300">1 april 2024 - 10:00</p>
             </div>
-            <button class="text-blue-500 hover:text-blue-600">Details</button>
+            <button class="text-slack-purple hover:text-slack-pink">Details</button>
           </div>
         </div>
       </div>
@@ -88,7 +88,7 @@
       <h3 class="text-xl font-semibold mb-4">Recente Documenten</h3>
       <div class="space-y-4">
         <div class="flex items-center space-x-4 p-3 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg">
-          <span class="material-icons text-blue-500">description</span>
+          <span class="material-icons text-slack-purple">description</span>
           <div class="flex-1">
             <p class="font-medium">BTW Aangifte Q4 2023</p>
             <p class="text-sm text-gray-600 dark:text-gray-300">Gedeeld op 1 februari 2024</p>

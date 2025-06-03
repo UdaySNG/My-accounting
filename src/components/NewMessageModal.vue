@@ -31,7 +31,7 @@
                   @click="recipientType = 'user'"
                   class="flex-1 px-4 py-2 rounded-lg border"
                   :class="recipientType === 'user' 
-                    ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300' 
+                    ? 'border-slack-purple bg-slack-purple/10 dark:bg-slack-purple/20 text-slack-purple dark:text-slack-purple' 
                     : 'border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'"
                 >
                   <span class="material-icons mr-2">person</span>
@@ -42,7 +42,7 @@
                   @click="recipientType = 'email'"
                   class="flex-1 px-4 py-2 rounded-lg border"
                   :class="recipientType === 'email' 
-                    ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300' 
+                    ? 'border-slack-purple bg-slack-purple/10 dark:bg-slack-purple/20 text-slack-purple dark:text-slack-purple' 
                     : 'border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'"
                 >
                   <span class="material-icons mr-2">email</span>
@@ -59,7 +59,7 @@
               <select
                 id="recipient"
                 v-model="formData.receiver_id"
-                class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-slack-purple focus:ring-slack-purple dark:bg-gray-700 dark:text-white"
                 required
               >
                 <option value="">Selecteer ontvanger</option>
@@ -77,7 +77,7 @@
                 type="email"
                 id="email"
                 v-model="formData.email"
-                class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-slack-purple focus:ring-slack-purple dark:bg-gray-700 dark:text-white"
                 required
               />
             </div>
@@ -122,7 +122,7 @@
                 type="text"
                 id="subject"
                 v-model="formData.subject"
-                class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-slack-purple focus:ring-slack-purple dark:bg-gray-700 dark:text-white"
                 required
               />
             </div>
@@ -136,7 +136,7 @@
                 id="message"
                 v-model="formData.content"
                 rows="6"
-                class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-slack-purple focus:ring-slack-purple dark:bg-gray-700 dark:text-white"
                 required
               ></textarea>
             </div>
@@ -152,7 +152,7 @@
               </button>
               <button
                 type="submit"
-                class="px-4 py-2 text-sm font-medium text-white bg-blue-500 hover:bg-blue-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                class="px-4 py-2 text-sm font-medium text-white bg-slack-purple hover:bg-slack-pink rounded-lg focus:outline-none focus:ring-2 focus:ring-slack-purple focus:ring-offset-2"
                 :disabled="isSending"
               >
                 <span v-if="isSending">Versturen...</span>

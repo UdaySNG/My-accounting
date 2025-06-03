@@ -83,7 +83,7 @@ const handleLogin = async () => {
     
     <p class="mt-4 text-center text-sm text-gray-600">
       Don't have an account?
-      <router-link to="/register" class="text-blue-600 hover:text-blue-700">
+      <router-link to="/register" class="text-slack-purple hover:text-slack-pink">
         Register
       </router-link>
     </p>

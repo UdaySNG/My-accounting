@@ -154,6 +154,18 @@ const quickLinks = [
     title: 'Boekhouden',
     icon: 'account_balance',
     description: 'Boekhoudkundige functies'
+  },
+  {
+    id: 'security',
+    title: 'Beveiliging',
+    icon: 'security',
+    description: '2FA en beveiligingsinstellingen'
+  },
+  {
+    id: 'integrations',
+    title: 'Integraties',
+    icon: 'extension',
+    description: 'Koppelingen met andere systemen'
   }
 ]
 
@@ -221,6 +233,92 @@ const faqSections = [
       {
         question: 'Hoe exporteer ik mijn boekhouding?',
         answer: 'Je kunt je boekhouding exporteren in verschillende formaten. Ga naar het rapporten overzicht en kies het gewenste exportformaat.'
+      }
+    ]
+  },
+  {
+    id: 'security',
+    title: 'Beveiliging',
+    description: 'Informatie over 2FA en beveiligingsinstellingen',
+    items: [
+      {
+        question: 'Wat is twee-factor authenticatie (2FA)?',
+        answer: '2FA voegt een extra beveiligingslaag toe aan je account. Naast je wachtwoord moet je ook een code invoeren die gegenereerd wordt door een authenticator app.',
+        steps: [
+          'Ga naar Instellingen > Beveiliging',
+          'Klik op "2FA activeren"',
+          'Scan de QR-code met je authenticator app',
+          'Voer de verificatiecode in',
+          'Sla je backup codes op voor noodgevallen'
+        ]
+      },
+      {
+        question: 'Wat zijn backup codes?',
+        answer: 'Backup codes zijn eenmalige codes die je kunt gebruiken om in te loggen als je je authenticator app niet bij de hand hebt. Bewaar deze codes op een veilige plek.'
+      },
+      {
+        question: 'Kan ik 2FA handmatig instellen?',
+        answer: 'Ja, je kunt 2FA ook handmatig instellen met een setup key. Deze optie is beschikbaar tijdens het 2FA setup proces.'
+      }
+    ]
+  },
+  {
+    id: 'integrations',
+    title: 'Integraties',
+    description: 'Koppelingen met andere systemen',
+    items: [
+      {
+        question: 'Welke integraties zijn beschikbaar?',
+        answer: 'We bieden integraties met verschillende systemen:',
+        steps: [
+          'Banken: Rabobank, ING',
+          'Boekhoudsoftware: Exact Online, Moneybird',
+          'Betaalproviders: Mollie, Stripe',
+          'Webwinkels: WooCommerce, Shopify',
+          'CRM: HubSpot, Salesforce'
+        ]
+      },
+      {
+        question: 'Hoe verbind ik mijn bank?',
+        answer: 'Het verbinden van je bank is eenvoudig:',
+        steps: [
+          'Ga naar Instellingen > Integraties',
+          'Klik op "Verbind" bij je bank',
+          'Volg de authenticatiestappen',
+          'Bevestig de koppeling'
+        ]
+      },
+      {
+        question: 'Hoe werkt de Exact Online koppeling?',
+        answer: 'De Exact Online koppeling synchroniseert automatisch je boekhouding. Na het verbinden worden transacties, facturen en andere gegevens automatisch gesynchroniseerd tussen de systemen.'
+      },
+      {
+        question: 'Kan ik meerdere integraties tegelijk gebruiken?',
+        answer: 'Ja, je kunt meerdere integraties tegelijk gebruiken. Bijvoorbeeld: je kunt zowel je bank als Exact Online koppelen, of meerdere betaalproviders gebruiken.'
+      }
+    ]
+  },
+  {
+    id: 'contact',
+    title: 'Contact & Support',
+    description: 'Neem contact op met ons support team',
+    items: [
+      {
+        question: 'Hoe kan ik contact opnemen met support?',
+        answer: 'Je kunt contact opnemen via verschillende kanalen:',
+        steps: [
+          'Live Chat: Direct beschikbaar in de app',
+          'E-mail: support@myaccounting.nl',
+          'Telefoon: 020-1234567 (ma-vr 9:00-17:00)'
+        ]
+      },
+      {
+        question: 'Wat zijn de support tijden?',
+        answer: 'Ons support team is bereikbaar op werkdagen van 9:00 tot 17:00 uur. Voor dringende zaken buiten deze tijden kun je een e-mail sturen.'
+      },
+      {
+        question: 'Hoe snel krijg ik antwoord?',
+        answer: 'We streven ernaar om binnen 24 uur te reageren op e-mails. Via de live chat krijg je direct antwoord tijdens kantooruren.'
       }
     ]
   }

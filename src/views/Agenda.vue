@@ -35,7 +35,7 @@
     <div class="bg-white dark:bg-gray-800 rounded-lg shadow mb-6">
       <!-- Loading State -->
       <div v-if="store.isLoading" class="p-4 text-center">
-        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto"></div>
+        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-slack-purple mx-auto"></div>
         <p class="mt-2 text-gray-600 dark:text-gray-300">Afspraken laden...</p>
       </div>
 
@@ -45,7 +45,7 @@
         <p class="mt-2 text-red-500">{{ store.error }}</p>
         <button 
           @click="store.fetchAppointments"
-          class="mt-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+          class="mt-2 px-4 py-2 bg-slack-purple text-white rounded-lg hover:bg-slack-pink"
         >
           Probeer opnieuw
         </button>
@@ -78,8 +78,8 @@
             :data-day="day"
             class="calendar-day min-h-[120px] bg-white dark:bg-gray-800 p-2 relative cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700"
             :class="{
-              'ring-2 ring-blue-500': isSelectedDate(day),
-              'bg-blue-50 dark:bg-blue-900/20': isSelectedDate(day)
+              'ring-2 ring-slack-purple': isSelectedDate(day),
+              'bg-slack-purple/10 dark:bg-slack-purple/20': isSelectedDate(day)
             }"
             @mousedown="handleDragStart($event, day)"
           >
@@ -88,7 +88,7 @@
               :class="{
                 'text-gray-400': !isCurrentMonth,
                 'text-gray-600 dark:text-gray-400': isCurrentMonth,
-                'text-blue-600 dark:text-blue-400 font-bold': isSelectedDate(day)
+                'text-slack-purple dark:text-slack-purple font-bold': isSelectedDate(day)
               }"
             >
               {{ day }}
@@ -198,7 +198,7 @@
                   <div class="flex space-x-2">
                     <button 
                       @click.stop="editAppointment(item)"
-                      class="text-blue-500 hover:text-blue-600"
+                      class="text-white hover:text-white"
                     >
                       <span class="material-icons">edit</span>
                     </button>
@@ -458,10 +458,13 @@ function openNewAppointmentForDay(day: number) {
 
   store.openModal({
     title: '',
+    description: '',
     start: startTime,
     end: endTime,
-    type: 'meeting',
-    description: '',
+    start_time: startTime.toISOString(),
+    end_time: endTime.toISOString(),
+    type: 'meeting' as 'meeting' | 'call' | 'other',
+    status: 'scheduled' as 'scheduled' | 'completed' | 'cancelled',
     color: '#3B82F6'
   } as Omit<Appointment, 'id'>)
 }
@@ -479,7 +482,7 @@ function deleteAppointment(id: string) {
 function handleSaveAppointment(appointment: Omit<Appointment, 'id'>) {
   if (selectedAppointment.value && 'id' in selectedAppointment.value) {
     // Update existing appointment
-    store.updateAppointment(selectedAppointment.value.id, appointment)
+    store.updateAppointment(selectedAppointment.value.id.toString(), appointment)
   } else {
     // Create new appointment
     store.addAppointment(appointment)
@@ -567,7 +570,7 @@ async function handleDelete() {
   if (contextMenuAppointment.value && 'id' in contextMenuAppointment.value) {
     if (confirm('Weet je zeker dat je deze afspraak wilt verwijderen?')) {
       try {
-        await store.deleteAppointment(contextMenuAppointment.value.id)
+        await store.deleteAppointment(contextMenuAppointment.value.id.toString())
         showContextMenu.value = false
       } catch (error) {
         console.error('Error deleting appointment:', error)
@@ -587,7 +590,7 @@ function handleDragStart(event: MouseEvent, day: number) {
   dragStartCell.value = event.currentTarget as HTMLElement
   
   // Add drag classes
-  dragStartCell.value.classList.add('bg-blue-100', 'dark:bg-blue-900/30')
+  dragStartCell.value.classList.add('bg-slack-purple\/10', 'dark:bg-slack-purple\/30')
   
   // Add event listeners for drag
   document.addEventListener('mousemove', handleDragMove)
@@ -648,7 +651,7 @@ function updateDragSelection() {
   
   // Remove selection from all cells
   document.querySelectorAll('.calendar-day').forEach(cell => {
-    cell.classList.remove('bg-blue-100', 'dark:bg-blue-900/30')
+    cell.classList.remove('bg-slack-purple\/10', 'dark:bg-slack-purple\/30')
   })
   
   // Add selection to cells in range
@@ -658,7 +661,7 @@ function updateDragSelection() {
   for (let day = start; day <= end; day++) {
     const cell = document.querySelector(`[data-day="${day}"]`)
     if (cell) {
-      cell.classList.add('bg-blue-100', 'dark:bg-blue-900/30')
+      cell.classList.add('bg-slack-purple\/10', 'dark:bg-slack-purple\/30')
     }
   }
 }
@@ -679,7 +682,7 @@ function cleanupDragSelection() {
   
   // Remove selection from all cells
   document.querySelectorAll('.calendar-day').forEach(cell => {
-    cell.classList.remove('bg-blue-100', 'dark:bg-blue-900/30')
+    cell.classList.remove('bg-slack-purple\/10', 'dark:bg-slack-purple\/30')
   })
 }
 
@@ -764,11 +767,11 @@ function handleMonthChange() {
   transition: background-color 0.2s;
 }
 
-.calendar-day.bg-blue-100 {
-  background-color: rgba(219, 234, 254, 0.5);
+.calendar-day.bg-slack-purple\/10 {
+  background-color: rgba(99, 102, 241, 0.1);
 }
 
-.dark .calendar-day.bg-blue-900\/30 {
-  background-color: rgba(30, 58, 138, 0.3);
+.dark .calendar-day.bg-slack-purple\/30 {
+  background-color: rgba(99, 102, 241, 0.3);
 }
 </style> 

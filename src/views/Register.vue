@@ -72,7 +72,7 @@ const handleRegister = async () => {
     
     <p class="mt-4 text-center text-sm text-gray-600">
       Heb je al een account?
-      <router-link to="/login" class="text-blue-600 hover:text-blue-700">
+      <router-link to="/login" class="text-slack-purple hover:text-slack-pink">
         Inloggen
       </router-link>
     </p>
