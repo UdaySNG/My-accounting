@@ -14,6 +14,7 @@ declare module 'vue' {
     ConfirmationDialog: typeof import('./components/ConfirmationDialog.vue')['default']
     Footer: typeof import('./components/Footer.vue')['default']
     HelloWorld: typeof import('./components/HelloWorld.vue')['default']
+    IntegrationSettingsDialog: typeof import('./components/IntegrationSettingsDialog.vue')['default']
     Layout: typeof import('./components/Layout.vue')['default']
     Navbar: typeof import('./components/Navbar.vue')['default']
     NewMessageModal: typeof import('./components/NewMessageModal.vue')['default']
@@ -21,5 +22,6 @@ declare module 'vue' {
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     Sidebar: typeof import('./components/Sidebar.vue')['default']
+    TwoFactorSetupDialog: typeof import('./components/TwoFactorSetupDialog.vue')['default']
   }
 }

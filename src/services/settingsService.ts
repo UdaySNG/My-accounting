@@ -50,6 +50,18 @@ export interface SecuritySettings {
   twoFactor: boolean
 }
 
+// 2FA Types
+export interface TwoFactorSetupResponse {
+  secret: string
+  qrCode: string | { data: string }
+  backupCodes: string[]
+}
+
+interface TwoFactorStatus {
+  enabled: boolean;
+  setupComplete: boolean;
+}
+
 // Profile Settings
 export const getProfileSettings = async (): Promise<ProfileSettings> => {
   const response = await apiClient.get('/settings/profile')
@@ -127,4 +139,25 @@ export const updatePassword = async (settings: SecuritySettings): Promise<void> 
 
 export const updateTwoFactor = async (enabled: boolean): Promise<void> => {
   await apiClient.put('/settings/security/2fa', { enabled })
+}
+
+// 2FA Functions
+export const setupTwoFactor = async (): Promise<TwoFactorSetupResponse> => {
+  const response = await apiClient.post<TwoFactorSetupResponse>('/settings/security/2fa/setup')
+  return response.data
+}
+
+export const verifyTwoFactor = async (code: string): Promise<{ success: boolean; message: string }> => {
+  const response = await apiClient.post<{ success: boolean; message: string }>('/settings/security/2fa/verify', { code })
+  return response.data
+}
+
+export const disableTwoFactor = async (code: string): Promise<{ success: boolean; message: string }> => {
+  const response = await apiClient.post<{ success: boolean; message: string }>('/settings/security/2fa/disable', { code })
+  return response.data
+}
+
+export const getTwoFactorStatus = async (): Promise<TwoFactorStatus> => {
+  const response = await apiClient.get<TwoFactorStatus>('/settings/security/2fa/status')
+  return response.data
 } 

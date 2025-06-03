@@ -291,29 +291,32 @@
               </ul>
             </div>
 
-            <div class="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-gray-700">
-              <div class="flex items-center space-x-2">
-                <span class="material-icons text-gray-600 dark:text-gray-400">lock</span>
-                <div>
-                  <div class="flex items-center gap-1.5">
-                    <h3 class="font-medium text-gray-900 dark:text-white">Twee-factor authenticatie</h3>
-                    <span class="text-sm text-gray-500 dark:text-gray-400">(Aanbevolen)</span>
-                    <div class="relative group">
-                      <span class="material-icons text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 cursor-help text-base leading-none mt-1">info</span>
-                      <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-64 p-2 bg-gray-900 text-white text-sm rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
-                        <p class="mb-2">Twee-factor authenticatie (2FA) voegt een extra beveiligingslaag toe aan je account.</p>
-                        <p class="mb-2">Naast je wachtwoord moet je ook een code invoeren die wordt gegenereerd door een authenticator app op je telefoon.</p>
-                        <p>Dit beschermt je account tegen ongeautoriseerde toegang, zelfs als iemand je wachtwoord zou weten.</p>
-                      </div>
-                    </div>
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-1.5">
+                <h3 class="text-lg font-medium">Twee-factor authenticatie</h3>
+                <div class="relative group">
+                  <span class="material-icons text-gray-400 text-sm cursor-help">info</span>
+                  <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-64 p-2 bg-gray-800 text-white text-sm rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
+                    Voeg een extra beveiligingslaag toe aan je account met twee-factor authenticatie. Na het inloggen met je wachtwoord moet je een code invoeren die gegenereerd wordt door een authenticator app.
                   </div>
-                  <p class="text-sm text-gray-500 dark:text-gray-400">Extra beveiliging voor je account</p>
                 </div>
               </div>
-              <label class="relative inline-flex items-center cursor-pointer">
-                <input type="checkbox" v-model="security.twoFactor" class="sr-only peer">
-                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-slack-purple/20 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-slack-purple"></div>
-              </label>
+              <div class="flex items-center gap-2">
+                <button
+                  v-if="!twoFactorStatus.enabled"
+                  @click="startTwoFactorSetup"
+                  class="px-4 py-2 bg-slack-purple text-white rounded hover:bg-slack-pink transition-colors"
+                >
+                  Inschakelen
+                </button>
+                <button
+                  v-else
+                  @click="verificationCode = ''"
+                  class="px-4 py-2 bg-slack-purple text-white rounded hover:bg-slack-pink transition-colors"
+                >
+                  Uitschakelen
+                </button>
+              </div>
             </div>
 
             <div class="flex justify-end space-x-4">
@@ -480,31 +483,278 @@
 
         <!-- Integrations -->
         <div v-if="activeSection === 'integrations'" class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
-          <h2 class="text-lg font-semibold mb-4">Integraties</h2>
-          <div class="space-y-4">
-            <div class="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
-              <div class="flex items-center space-x-4">
-                <span class="material-icons text-gray-600 dark:text-gray-400">account_balance</span>
-                <div>
-                  <h3 class="font-medium text-gray-900 dark:text-white">Exact Online</h3>
-                  <p class="text-sm text-gray-500 dark:text-gray-400">Synchroniseer met je boekhouding</p>
-                </div>
-              </div>
-              <button class="px-4 py-2 bg-slack-purple text-white rounded-lg hover:bg-slack-pink transition-colors">
-                Verbinden
-              </button>
+          <div class="flex justify-between items-center mb-6">
+            <div>
+              <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Integraties</h2>
+              <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Verbind je account met andere diensten</p>
             </div>
-            <div class="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
-              <div class="flex items-center space-x-4">
-                <span class="material-icons text-gray-600 dark:text-gray-400">payments</span>
-                <div>
-                  <h3 class="font-medium text-gray-900 dark:text-white">Mollie</h3>
-                  <p class="text-sm text-gray-500 dark:text-gray-400">Online betalingen verwerken</p>
+            <button 
+              @click="refreshIntegrations"
+              class="px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors flex items-center"
+              :disabled="integrationsLoading"
+            >
+              <span class="material-icons mr-2" :class="{ 'animate-spin': integrationsLoading }">
+                {{ integrationsLoading ? 'sync' : 'refresh' }}
+              </span>
+              {{ integrationsLoading ? 'Verversen...' : 'Ververs' }}
+            </button>
+          </div>
+
+          <!-- Error message -->
+          <div v-if="integrationsError" class="mb-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg flex items-center">
+            <span class="material-icons mr-2">error</span>
+            {{ integrationsError }}
+          </div>
+
+          <div class="space-y-8">
+            <!-- Banking Integrations -->
+            <div v-if="integrations.filter(i => i.category === 'banking').length > 0" class="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-6">
+              <div class="flex items-center mb-4">
+                <span class="material-icons text-gray-600 dark:text-gray-400 mr-2">account_balance</span>
+                <h3 class="text-md font-medium text-gray-900 dark:text-white">Banking</h3>
+              </div>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div 
+                  v-for="integration in integrations.filter(i => i.category === 'banking')"
+                  :key="integration.id"
+                  class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4 border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow"
+                >
+                  <div class="flex items-start justify-between">
+                    <div class="flex items-start space-x-3">
+                      <div class="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
+                        <span class="material-icons text-gray-600 dark:text-gray-400">{{ integration.icon }}</span>
+                      </div>
+                      <div>
+                        <h3 class="font-medium text-gray-900 dark:text-white">{{ integration.name }}</h3>
+                        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">{{ integration.description }}</p>
+                        <p class="text-sm mt-2 flex items-center" :class="getIntegrationStatusColor(integration)">
+                          <span class="w-2 h-2 rounded-full mr-2" :class="{
+                            'bg-green-500': integration.status === 'connected',
+                            'bg-gray-400': integration.status === 'disconnected',
+                            'bg-yellow-500': integration.status === 'pending',
+                            'bg-red-500': integration.status === 'error'
+                          }"></span>
+                          {{ getIntegrationStatusText(integration) }}
+                          <span v-if="integration.lastSync" class="ml-2 text-gray-500">
+                            (Laatste sync: {{ new Date(integration.lastSync).toLocaleString() }})
+                          </span>
+                        </p>
+                      </div>
+                    </div>
+                    <button 
+                      @click="handleIntegrationButtonClick(integration)"
+                      class="px-4 py-2 text-white rounded-lg transition-colors flex items-center"
+                      :class="getIntegrationButtonColor(integration)"
+                      :disabled="integration.status === 'pending'"
+                    >
+                      <span class="material-icons text-sm mr-1">
+                        {{ integration.status === 'connected' ? 'link_off' : 'link' }}
+                      </span>
+                      {{ getIntegrationButtonText(integration) }}
+                    </button>
+                  </div>
                 </div>
               </div>
-              <button class="px-4 py-2 bg-slack-purple text-white rounded-lg hover:bg-slack-pink transition-colors">
-                Verbinden
-              </button>
+            </div>
+
+            <!-- Accounting Software -->
+            <div v-if="integrations.filter(i => i.category === 'accounting').length > 0" class="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-6">
+              <div class="flex items-center mb-4">
+                <span class="material-icons text-gray-600 dark:text-gray-400 mr-2">account_balance</span>
+                <h3 class="text-md font-medium text-gray-900 dark:text-white">Boekhoudsoftware</h3>
+              </div>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div 
+                  v-for="integration in integrations.filter(i => i.category === 'accounting')"
+                  :key="integration.id"
+                  class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4 border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow"
+                >
+                  <div class="flex items-start justify-between">
+                    <div class="flex items-start space-x-3">
+                      <div class="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
+                        <span class="material-icons text-gray-600 dark:text-gray-400">{{ integration.icon }}</span>
+                      </div>
+                      <div>
+                        <h3 class="font-medium text-gray-900 dark:text-white">{{ integration.name }}</h3>
+                        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">{{ integration.description }}</p>
+                        <p class="text-sm mt-2 flex items-center" :class="getIntegrationStatusColor(integration)">
+                          <span class="w-2 h-2 rounded-full mr-2" :class="{
+                            'bg-green-500': integration.status === 'connected',
+                            'bg-gray-400': integration.status === 'disconnected',
+                            'bg-yellow-500': integration.status === 'pending',
+                            'bg-red-500': integration.status === 'error'
+                          }"></span>
+                          {{ getIntegrationStatusText(integration) }}
+                          <span v-if="integration.lastSync" class="ml-2 text-gray-500">
+                            (Laatste sync: {{ new Date(integration.lastSync).toLocaleString() }})
+                          </span>
+                        </p>
+                      </div>
+                    </div>
+                    <button 
+                      @click="handleIntegrationButtonClick(integration)"
+                      class="px-4 py-2 text-white rounded-lg transition-colors flex items-center"
+                      :class="getIntegrationButtonColor(integration)"
+                      :disabled="integration.status === 'pending'"
+                    >
+                      <span class="material-icons text-sm mr-1">
+                        {{ integration.status === 'connected' ? 'link_off' : 'link' }}
+                      </span>
+                      {{ getIntegrationButtonText(integration) }}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Payment Providers -->
+            <div v-if="integrations.filter(i => i.category === 'payment').length > 0" class="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-6">
+              <div class="flex items-center mb-4">
+                <span class="material-icons text-gray-600 dark:text-gray-400 mr-2">payments</span>
+                <h3 class="text-md font-medium text-gray-900 dark:text-white">Betaalproviders</h3>
+              </div>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div 
+                  v-for="integration in integrations.filter(i => i.category === 'payment')"
+                  :key="integration.id"
+                  class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4 border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow"
+                >
+                  <div class="flex items-start justify-between">
+                    <div class="flex items-start space-x-3">
+                      <div class="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
+                        <span class="material-icons text-gray-600 dark:text-gray-400">{{ integration.icon }}</span>
+                      </div>
+                      <div>
+                        <h3 class="font-medium text-gray-900 dark:text-white">{{ integration.name }}</h3>
+                        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">{{ integration.description }}</p>
+                        <p class="text-sm mt-2 flex items-center" :class="getIntegrationStatusColor(integration)">
+                          <span class="w-2 h-2 rounded-full mr-2" :class="{
+                            'bg-green-500': integration.status === 'connected',
+                            'bg-gray-400': integration.status === 'disconnected',
+                            'bg-yellow-500': integration.status === 'pending',
+                            'bg-red-500': integration.status === 'error'
+                          }"></span>
+                          {{ getIntegrationStatusText(integration) }}
+                          <span v-if="integration.lastSync" class="ml-2 text-gray-500">
+                            (Laatste sync: {{ new Date(integration.lastSync).toLocaleString() }})
+                          </span>
+                        </p>
+                      </div>
+                    </div>
+                    <button 
+                      @click="handleIntegrationButtonClick(integration)"
+                      class="px-4 py-2 text-white rounded-lg transition-colors flex items-center"
+                      :class="getIntegrationButtonColor(integration)"
+                      :disabled="integration.status === 'pending'"
+                    >
+                      <span class="material-icons text-sm mr-1">
+                        {{ integration.status === 'connected' ? 'link_off' : 'link' }}
+                      </span>
+                      {{ getIntegrationButtonText(integration) }}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- E-commerce -->
+            <div v-if="integrations.filter(i => i.category === 'ecommerce').length > 0" class="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-6">
+              <div class="flex items-center mb-4">
+                <span class="material-icons text-gray-600 dark:text-gray-400 mr-2">shopping_cart</span>
+                <h3 class="text-md font-medium text-gray-900 dark:text-white">Webwinkels</h3>
+              </div>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div 
+                  v-for="integration in integrations.filter(i => i.category === 'ecommerce')"
+                  :key="integration.id"
+                  class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4 border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow"
+                >
+                  <div class="flex items-start justify-between">
+                    <div class="flex items-start space-x-3">
+                      <div class="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
+                        <span class="material-icons text-gray-600 dark:text-gray-400">{{ integration.icon }}</span>
+                      </div>
+                      <div>
+                        <h3 class="font-medium text-gray-900 dark:text-white">{{ integration.name }}</h3>
+                        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">{{ integration.description }}</p>
+                        <p class="text-sm mt-2 flex items-center" :class="getIntegrationStatusColor(integration)">
+                          <span class="w-2 h-2 rounded-full mr-2" :class="{
+                            'bg-green-500': integration.status === 'connected',
+                            'bg-gray-400': integration.status === 'disconnected',
+                            'bg-yellow-500': integration.status === 'pending',
+                            'bg-red-500': integration.status === 'error'
+                          }"></span>
+                          {{ getIntegrationStatusText(integration) }}
+                          <span v-if="integration.lastSync" class="ml-2 text-gray-500">
+                            (Laatste sync: {{ new Date(integration.lastSync).toLocaleString() }})
+                          </span>
+                        </p>
+                      </div>
+                    </div>
+                    <button 
+                      @click="handleIntegrationButtonClick(integration)"
+                      class="px-4 py-2 text-white rounded-lg transition-colors flex items-center"
+                      :class="getIntegrationButtonColor(integration)"
+                      :disabled="integration.status === 'pending'"
+                    >
+                      <span class="material-icons text-sm mr-1">
+                        {{ integration.status === 'connected' ? 'link_off' : 'link' }}
+                      </span>
+                      {{ getIntegrationButtonText(integration) }}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- CRM -->
+            <div v-if="integrations.filter(i => i.category === 'crm').length > 0" class="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-6">
+              <div class="flex items-center mb-4">
+                <span class="material-icons text-gray-600 dark:text-gray-400 mr-2">people</span>
+                <h3 class="text-md font-medium text-gray-900 dark:text-white">CRM</h3>
+              </div>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div 
+                  v-for="integration in integrations.filter(i => i.category === 'crm')"
+                  :key="integration.id"
+                  class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4 border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow"
+                >
+                  <div class="flex items-start justify-between">
+                    <div class="flex items-start space-x-3">
+                      <div class="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
+                        <span class="material-icons text-gray-600 dark:text-gray-400">{{ integration.icon }}</span>
+                      </div>
+                      <div>
+                        <h3 class="font-medium text-gray-900 dark:text-white">{{ integration.name }}</h3>
+                        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">{{ integration.description }}</p>
+                        <p class="text-sm mt-2 flex items-center" :class="getIntegrationStatusColor(integration)">
+                          <span class="w-2 h-2 rounded-full mr-2" :class="{
+                            'bg-green-500': integration.status === 'connected',
+                            'bg-gray-400': integration.status === 'disconnected',
+                            'bg-yellow-500': integration.status === 'pending',
+                            'bg-red-500': integration.status === 'error'
+                          }"></span>
+                          {{ getIntegrationStatusText(integration) }}
+                          <span v-if="integration.lastSync" class="ml-2 text-gray-500">
+                            (Laatste sync: {{ new Date(integration.lastSync).toLocaleString() }})
+                          </span>
+                        </p>
+                      </div>
+                    </div>
+                    <button 
+                      @click="handleIntegrationButtonClick(integration)"
+                      class="px-4 py-2 text-white rounded-lg transition-colors flex items-center"
+                      :class="getIntegrationButtonColor(integration)"
+                      :disabled="integration.status === 'pending'"
+                    >
+                      <span class="material-icons text-sm mr-1">
+                        {{ integration.status === 'connected' ? 'link_off' : 'link' }}
+                      </span>
+                      {{ getIntegrationButtonText(integration) }}
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -518,6 +768,93 @@
       :confirm-text="confirmDialogConfig.confirmText"
       @confirm="confirmDialogConfig.onConfirm"
     />
+
+    <!-- 2FA Setup Dialog -->
+    <TwoFactorSetupDialog
+      v-model="showTwoFactorSetup"
+      :setup="twoFactorSetup"
+      @verify="verifyTwoFactorSetup"
+    />
+
+    <!-- 2FA Disable Dialog -->
+    <div v-if="showDisableDialog" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div class="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md w-full mx-4">
+        <div class="flex justify-between items-center mb-4">
+          <h4 class="text-lg font-medium text-gray-900 dark:text-white">2FA Uitschakelen</h4>
+          <button 
+            @click="showDisableDialog = false"
+            class="text-gray-400 hover:text-gray-600 dark:hover:text-white"
+          >
+            <span class="material-icons">close</span>
+          </button>
+        </div>
+        <div class="space-y-4">
+          <p class="text-gray-600 dark:text-gray-300">
+            Voer de 6-cijferige code in van je authenticator app om 2FA uit te schakelen
+          </p>
+          <div class="flex gap-2">
+            <input
+              v-model="verificationCode"
+              type="text"
+              maxlength="6"
+              placeholder="000000"
+              class="flex-1 px-3 py-2 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:border-slack-purple text-gray-900 dark:text-white"
+            />
+            <button
+              @click="handleDisableTwoFactor"
+              class="px-4 py-2 bg-slack-purple text-white rounded hover:bg-slack-pink transition-colors"
+            >
+              Uitschakelen
+            </button>
+          </div>
+          <div class="flex justify-end gap-2 mt-4">
+            <button
+              @click="showDisableDialog = false"
+              class="px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+            >
+              Annuleren
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Backup Codes Dialog -->
+    <div v-if="showBackupCodes && twoFactorSetup" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div class="bg-gray-800 rounded-lg p-6 max-w-md w-full mx-4">
+        <div class="flex justify-between items-center mb-4">
+          <h4 class="text-lg font-medium text-white">Backup Codes</h4>
+          <button 
+            @click="showBackupCodes = false"
+            class="text-gray-400 hover:text-white"
+          >
+            <span class="material-icons">close</span>
+          </button>
+        </div>
+        <div class="space-y-4">
+          <p class="text-gray-300">
+            Bewaar deze backup codes op een veilige plek. Je kunt ze gebruiken om in te loggen als je geen toegang hebt tot je authenticator app.
+          </p>
+          <div class="grid grid-cols-2 gap-2">
+            <div
+              v-for="code in twoFactorSetup.backupCodes"
+              :key="code"
+              class="p-2 bg-gray-700 rounded font-mono text-center text-white"
+            >
+              {{ code }}
+            </div>
+          </div>
+          <div class="flex justify-end gap-2 mt-4">
+            <button
+              @click="showBackupCodes = false"
+              class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+            >
+              Ik heb de codes opgeslagen
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -539,16 +876,24 @@ import {
   updateAppearanceSettings,
   updatePassword,
   updateTwoFactor,
+  setupTwoFactor,
+  verifyTwoFactor,
+  disableTwoFactor,
+  getTwoFactorStatus,
   type ProfileSettings,
   type FiscalSettings,
   type InvoiceSettings,
   type BackupSettings,
   type NotificationSettings,
   type AppearanceSettings,
-  type SecuritySettings
+  type SecuritySettings,
+  type TwoFactorSetupResponse
 } from '@/services/settingsService'
+import { useIntegrations } from '@/services/integrationService'
+import type { Integration } from '@/types/integrations'
 import PhoneNumberInput from '@/components/PhoneNumberInput.vue'
 import ConfirmationDialog from '@/components/ConfirmationDialog.vue'
+import TwoFactorSetupDialog from '@/components/TwoFactorSetupDialog.vue'
 
 // Add type for confirmation dialog configuration
 type ConfirmDialogConfig = {
@@ -710,6 +1055,44 @@ const showCurrentPassword = ref(false)
 const showNewPassword = ref(false)
 const showConfirmPassword = ref(false)
 
+// 2FA Types
+interface QRCodeResponse {
+  data?: string;
+  [key: string]: any;
+}
+
+interface TwoFactorSetupResponse {
+  secret: string;
+  qrCode: string | QRCodeResponse;
+  backupCodes: string[];
+}
+
+// 2FA State
+const twoFactorSetup = ref<TwoFactorSetupResponse | null>(null)
+const verificationCode = ref('')
+const showBackupCodes = ref(false)
+const twoFactorStatus = ref<{
+  enabled: boolean;
+  setupComplete: boolean;
+}>({
+  enabled: false,
+  setupComplete: false
+})
+
+// Add to the state section
+const showDisableDialog = ref(false)
+const showTwoFactorSetup = ref(false)
+
+// Add integration state
+const { 
+  integrations,
+  isLoading: integrationsLoading,
+  error: integrationsError,
+  refreshIntegrations,
+  connectIntegration,
+  disconnectIntegration
+} = useIntegrations()
+
 // Load settings when component mounts
 onMounted(async () => {
   try {
@@ -740,6 +1123,9 @@ onMounted(async () => {
     backup.value = backupData
     notifications.value = notificationData
     appearance.value = appearanceData
+
+    // Load 2FA status
+    twoFactorStatus.value = await getTwoFactorStatus()
   } catch (err) {
     error.value = 'Er is een fout opgetreden bij het laden van de instellingen'
     console.error('Error loading settings:', err)
@@ -1000,6 +1386,172 @@ watch(notifications, async (newVal) => {
     console.error('Error saving notification settings:', err)
   }
 }, { deep: true })
+
+// 2FA Functions
+const startTwoFactorSetup = async () => {
+  try {
+    const response = await setupTwoFactor()
+    console.log('QR Code response:', response)
+    twoFactorSetup.value = {
+      secret: response.secret,
+      qrCode: response.qrCode,
+      backupCodes: response.backupCodes
+    }
+    showTwoFactorSetup.value = true
+  } catch (error) {
+    console.error('Failed to setup 2FA:', error)
+    toast.error('Er is een fout opgetreden bij het instellen van 2FA')
+  }
+}
+
+const verifyTwoFactorSetup = async (code: string) => {
+  try {
+    console.log('Verifying 2FA with code:', code)
+    const result = await verifyTwoFactor(code)
+    console.log('Verification result:', result)
+    
+    if (result.success) {
+      toast.success('2FA is succesvol ingeschakeld')
+      twoFactorStatus.value.enabled = true
+      twoFactorStatus.value.setupComplete = true
+      showBackupCodes.value = true
+      showTwoFactorSetup.value = false
+    } else {
+      toast.error(result.message || 'Verificatie mislukt')
+    }
+  } catch (error: any) {
+    console.error('Failed to verify 2FA:', error)
+    console.error('Error details:', error.response?.data)
+    toast.error(error.response?.data?.message || 'Er is een fout opgetreden bij het verifiëren van 2FA')
+  }
+}
+
+const handleDisableTwoFactor = async () => {
+  if (!verificationCode.value) {
+    toast.error('Voer de verificatiecode in')
+    return
+  }
+
+  try {
+    const result = await disableTwoFactor(verificationCode.value)
+    if (result.success) {
+      toast.success('2FA is succesvol uitgeschakeld')
+      twoFactorStatus.value.enabled = false
+      twoFactorStatus.value.setupComplete = false
+      security.value.twoFactor = false
+      showDisableDialog.value = false
+      verificationCode.value = ''
+    } else {
+      toast.error(result.message)
+    }
+  } catch (error) {
+    console.error('Failed to disable 2FA:', error)
+    toast.error('Er is een fout opgetreden bij het uitschakelen van 2FA')
+  }
+}
+
+// Add to the script section
+const copyToClipboard = async (text: string) => {
+  try {
+    await navigator.clipboard.writeText(text)
+    toast.success('Setup key gekopieerd naar klembord')
+  } catch (err) {
+    console.error('Failed to copy:', err)
+    toast.error('Kon setup key niet kopiëren')
+  }
+}
+
+// Add integration connection handlers
+const handleConnectIntegration = async (integration: Integration) => {
+  try {
+    await connectIntegration(integration.id)
+    showSuccess(`${integration.name} is succesvol verbonden`)
+  } catch (err) {
+    showError(`Er is een fout opgetreden bij het verbinden van ${integration.name}`)
+  }
+}
+
+const handleDisconnectIntegration = async (integration: Integration) => {
+  try {
+    await disconnectIntegration(integration.id)
+    showSuccess(`${integration.name} is succesvol verbroken`)
+  } catch (err) {
+    showError(`Er is een fout opgetreden bij het verbreken van ${integration.name}`)
+  }
+}
+
+// Add integration status text
+const getIntegrationStatusText = (integration: Integration) => {
+  switch (integration.status) {
+    case 'connected':
+      return 'Verbonden'
+    case 'disconnected':
+      return 'Niet verbonden'
+    case 'pending':
+      return 'Bezig met verbinden...'
+    case 'error':
+      return 'Fout bij verbinden'
+    default:
+      return 'Onbekend'
+  }
+}
+
+// Add integration status color
+const getIntegrationStatusColor = (integration: Integration) => {
+  switch (integration.status) {
+    case 'connected':
+      return 'text-green-500'
+    case 'disconnected':
+      return 'text-gray-500'
+    case 'pending':
+      return 'text-yellow-500'
+    case 'error':
+      return 'text-red-500'
+    default:
+      return 'text-gray-500'
+  }
+}
+
+// Add integration button text
+const getIntegrationButtonText = (integration: Integration) => {
+  switch (integration.status) {
+    case 'connected':
+      return 'Verbreken'
+    case 'disconnected':
+      return 'Verbinden'
+    case 'pending':
+      return 'Bezig...'
+    case 'error':
+      return 'Opnieuw proberen'
+    default:
+      return 'Verbinden'
+  }
+}
+
+// Add integration button color
+const getIntegrationButtonColor = (integration: Integration) => {
+  switch (integration.status) {
+    case 'connected':
+      return 'bg-red-500 hover:bg-red-600'
+    case 'disconnected':
+      return 'bg-slack-purple hover:bg-slack-pink'
+    case 'pending':
+      return 'bg-gray-500 cursor-not-allowed'
+    case 'error':
+      return 'bg-yellow-500 hover:bg-yellow-600'
+    default:
+      return 'bg-slack-purple hover:bg-slack-pink'
+  }
+}
+
+// Add integration button handler
+const handleIntegrationButtonClick = (integration: Integration) => {
+  if (integration.status === 'connected') {
+    handleDisconnectIntegration(integration)
+  } else {
+    handleConnectIntegration(integration)
+  }
+}
 </script>
 
 <style scoped>
