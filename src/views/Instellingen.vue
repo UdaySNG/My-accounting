@@ -178,25 +178,154 @@
           <div class="space-y-4">
             <div>
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Huidig wachtwoord</label>
-              <input type="password" v-model="security.currentPassword" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+              <div class="relative">
+                <input 
+                  v-model="security.currentPassword" 
+                  :type="showCurrentPassword ? 'text' : 'password'"
+                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                />
+                <button
+                  type="button"
+                  class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                  @click="showCurrentPassword = !showCurrentPassword"
+                >
+                  <span class="material-icons text-xl">
+                    {{ showCurrentPassword ? 'visibility_off' : 'visibility' }}
+                  </span>
+                </button>
+              </div>
             </div>
             <div>
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nieuw wachtwoord</label>
-              <input type="password" v-model="security.newPassword" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+              <div class="relative">
+                <input 
+                  v-model="security.newPassword" 
+                  :type="showNewPassword ? 'text' : 'password'"
+                  :disabled="!security.currentPassword"
+                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white disabled:bg-gray-100 dark:disabled:bg-gray-800 disabled:cursor-not-allowed"
+                />
+                <button
+                  type="button"
+                  class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                  @click="showNewPassword = !showNewPassword"
+                  :disabled="!security.currentPassword"
+                >
+                  <span class="material-icons text-xl">
+                    {{ showNewPassword ? 'visibility_off' : 'visibility' }}
+                  </span>
+                </button>
+              </div>
             </div>
             <div>
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Bevestig nieuw wachtwoord</label>
-              <input type="password" v-model="security.confirmPassword" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+              <div class="relative">
+                <input 
+                  v-model="security.confirmPassword" 
+                  :type="showConfirmPassword ? 'text' : 'password'"
+                  :disabled="!security.currentPassword"
+                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white disabled:bg-gray-100 dark:disabled:bg-gray-800 disabled:cursor-not-allowed"
+                />
+                <button
+                  type="button"
+                  class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                  @click="showConfirmPassword = !showConfirmPassword"
+                  :disabled="!security.currentPassword"
+                >
+                  <span class="material-icons text-xl">
+                    {{ showConfirmPassword ? 'visibility_off' : 'visibility' }}
+                  </span>
+                </button>
+              </div>
             </div>
-            <div class="flex items-center justify-between">
-              <div>
-                <h3 class="font-medium text-gray-900 dark:text-white">Twee-factor authenticatie</h3>
-                <p class="text-sm text-gray-500 dark:text-gray-400">Extra beveiliging voor je account</p>
+
+            <!-- Wachtwoord sterkte indicator -->
+            <div v-if="security.newPassword" class="space-y-2">
+              <div class="flex items-center justify-between text-sm">
+                <span class="text-gray-600 dark:text-gray-400">Wachtwoord sterkte:</span>
+                <span :class="{
+                  'text-red-500': passwordStrength <= 1,
+                  'text-yellow-500': passwordStrength === 2 || passwordStrength === 3,
+                  'text-green-500': passwordStrength >= 4
+                }">
+                  {{ strengthText }}
+                </span>
+              </div>
+              <div class="h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                <div 
+                  class="h-full transition-all duration-300"
+                  :class="strengthColor"
+                  :style="{ width: `${(passwordStrength / 5) * 100}%` }"
+                ></div>
+              </div>
+              <ul class="text-sm text-gray-600 dark:text-gray-400 space-y-1">
+                <li class="flex items-center">
+                  <span class="material-icons text-sm mr-1" :class="hasMinLength ? 'text-green-500' : 'text-gray-400'">
+                    {{ hasMinLength ? 'check_circle' : 'radio_button_unchecked' }}
+                  </span>
+                  Minimaal 8 karakters
+                </li>
+                <li class="flex items-center">
+                  <span class="material-icons text-sm mr-1" :class="hasUppercase ? 'text-green-500' : 'text-gray-400'">
+                    {{ hasUppercase ? 'check_circle' : 'radio_button_unchecked' }}
+                  </span>
+                  Minimaal 1 hoofdletter
+                </li>
+                <li class="flex items-center">
+                  <span class="material-icons text-sm mr-1" :class="hasLowercase ? 'text-green-500' : 'text-gray-400'">
+                    {{ hasLowercase ? 'check_circle' : 'radio_button_unchecked' }}
+                  </span>
+                  Minimaal 1 kleine letter
+                </li>
+                <li class="flex items-center">
+                  <span class="material-icons text-sm mr-1" :class="hasNumber ? 'text-green-500' : 'text-gray-400'">
+                    {{ hasNumber ? 'check_circle' : 'radio_button_unchecked' }}
+                  </span>
+                  Minimaal 1 cijfer
+                </li>
+                <li class="flex items-center">
+                  <span class="material-icons text-sm mr-1" :class="hasSpecialChar ? 'text-green-500' : 'text-gray-400'">
+                    {{ hasSpecialChar ? 'check_circle' : 'radio_button_unchecked' }}
+                  </span>
+                  Minimaal 1 speciaal teken
+                </li>
+              </ul>
+            </div>
+
+            <div class="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-gray-700">
+              <div class="flex items-center space-x-2">
+                <span class="material-icons text-gray-600 dark:text-gray-400">lock</span>
+                <div>
+                  <div class="flex items-center gap-1.5">
+                    <h3 class="font-medium text-gray-900 dark:text-white">Twee-factor authenticatie</h3>
+                    <span class="text-sm text-gray-500 dark:text-gray-400">(Aanbevolen)</span>
+                    <div class="relative group">
+                      <span class="material-icons text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 cursor-help text-base leading-none mt-1">info</span>
+                      <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-64 p-2 bg-gray-900 text-white text-sm rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
+                        <p class="mb-2">Twee-factor authenticatie (2FA) voegt een extra beveiligingslaag toe aan je account.</p>
+                        <p class="mb-2">Naast je wachtwoord moet je ook een code invoeren die wordt gegenereerd door een authenticator app op je telefoon.</p>
+                        <p>Dit beschermt je account tegen ongeautoriseerde toegang, zelfs als iemand je wachtwoord zou weten.</p>
+                      </div>
+                    </div>
+                  </div>
+                  <p class="text-sm text-gray-500 dark:text-gray-400">Extra beveiliging voor je account</p>
+                </div>
               </div>
               <label class="relative inline-flex items-center cursor-pointer">
                 <input type="checkbox" v-model="security.twoFactor" class="sr-only peer">
                 <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-slack-purple/20 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-slack-purple"></div>
               </label>
+            </div>
+
+            <div class="flex justify-end space-x-4">
+              <button
+                v-if="security.newPassword || security.twoFactor !== undefined"
+                @click="saveSecuritySettings"
+                class="px-4 py-2 bg-slack-purple text-white rounded-lg hover:bg-slack-pink transition-colors flex items-center"
+                :disabled="isLoading"
+              >
+                <span class="material-icons mr-2">{{ isLoading ? 'hourglass_empty' : 'save' }}</span>
+                {{ isLoading ? 'Opslaan...' : 'Opslaan' }}
+              </button>
             </div>
           </div>
         </div>
@@ -393,7 +522,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount, watch } from 'vue'
+import { ref, onMounted, onBeforeUnmount, watch, computed } from 'vue'
+import { useToast } from 'vue-toastification'
 import { 
   getProfileSettings, 
   updateProfileSettings,
@@ -419,6 +549,29 @@ import {
 } from '@/services/settingsService'
 import PhoneNumberInput from '@/components/PhoneNumberInput.vue'
 import ConfirmationDialog from '@/components/ConfirmationDialog.vue'
+
+// Add type for confirmation dialog configuration
+type ConfirmDialogConfig = {
+  title: string
+  message: string
+  confirmText: string
+  onConfirm: () => Promise<void>
+}
+
+// Add state for confirmation dialog
+const showConfirmDialog = ref(false)
+const confirmDialogConfig = ref<ConfirmDialogConfig>({
+  title: '',
+  message: '',
+  confirmText: 'Bevestigen',
+  onConfirm: async () => {}
+})
+
+// Helper function to update confirmation dialog
+const updateConfirmDialog = (config: ConfirmDialogConfig) => {
+  confirmDialogConfig.value = config
+  showConfirmDialog.value = true
+}
 
 const activeSection = ref('profile')
 const isEditing = ref(false)
@@ -487,19 +640,75 @@ const security = ref<SecuritySettings>({
   twoFactor: false
 })
 
-// Add to components
-const components = {
-  ConfirmationDialog
-}
+// Add toast functions
+const toast = useToast()
+const showSuccess = (message: string) => toast.success(message)
+const showError = (message: string) => toast.error(message)
 
-// Add state for confirmation dialog
-const showConfirmDialog = ref(false)
-const confirmDialogConfig = ref({
-  title: '',
-  message: '',
-  confirmText: 'Bevestigen',
-  onConfirm: () => {}
+// Add original security state
+const originalSecurity = ref<SecuritySettings>({
+  currentPassword: '',
+  newPassword: '',
+  confirmPassword: '',
+  twoFactor: false
 })
+
+// Add password validation
+const hasSpecialChar = computed(() => /[!@#$%^&*(),.?":{}|<>]/.test(security.value.newPassword))
+const hasUppercase = computed(() => /[A-Z]/.test(security.value.newPassword))
+const hasLowercase = computed(() => /[a-z]/.test(security.value.newPassword))
+const hasNumber = computed(() => /[0-9]/.test(security.value.newPassword))
+const hasMinLength = computed(() => security.value.newPassword.length >= 8)
+
+// Password strength calculation
+const passwordStrength = computed(() => {
+  let strength = 0
+  if (hasMinLength.value) strength++
+  if (hasUppercase.value) strength++
+  if (hasLowercase.value) strength++
+  if (hasNumber.value) strength++
+  if (hasSpecialChar.value) strength++
+  return strength
+})
+
+// Password strength color
+const strengthColor = computed(() => {
+  switch (passwordStrength.value) {
+    case 0:
+    case 1:
+      return 'bg-red-500'
+    case 2:
+    case 3:
+      return 'bg-yellow-500'
+    case 4:
+    case 5:
+      return 'bg-green-500'
+    default:
+      return 'bg-gray-200'
+  }
+})
+
+// Password strength text
+const strengthText = computed(() => {
+  switch (passwordStrength.value) {
+    case 0:
+    case 1:
+      return 'Zeer zwak'
+    case 2:
+    case 3:
+      return 'Gemiddeld'
+    case 4:
+    case 5:
+      return 'Sterk'
+    default:
+      return ''
+  }
+})
+
+// Add show/hide password functionality
+const showCurrentPassword = ref(false)
+const showNewPassword = ref(false)
+const showConfirmPassword = ref(false)
 
 // Load settings when component mounts
 onMounted(async () => {
@@ -657,40 +866,78 @@ const saveAppearanceSettings = async () => {
 
 // Save security settings
 const saveSecuritySettings = async () => {
-  if (security.value.newPassword) {
-    confirmDialogConfig.value = {
-      title: 'Wachtwoord wijzigen',
-      message: 'Weet je zeker dat je je wachtwoord wilt wijzigen?',
-      confirmText: 'Wijzigen',
-      onConfirm: async () => {
-        try {
-          await updatePassword(security.value)
-          security.value.newPassword = ''
-          security.value.confirmPassword = ''
-        } catch (err: any) {
-          error.value = 'Er is een fout opgetreden bij het wijzigen van het wachtwoord'
-        }
+  try {
+    // Check if password is being updated
+    if (security.value.currentPassword || security.value.newPassword || security.value.confirmPassword) {
+      if (!security.value.currentPassword) {
+        showError('Vul je huidige wachtwoord in')
+        return
       }
-    }
-    showConfirmDialog.value = true
-  }
+      if (!security.value.newPassword) {
+        showError('Vul een nieuw wachtwoord in')
+        return
+      }
+      if (!security.value.confirmPassword) {
+        showError('Bevestig je nieuwe wachtwoord')
+        return
+      }
+      if (security.value.newPassword !== security.value.confirmPassword) {
+        showError('Wachtwoorden komen niet overeen')
+        return
+      }
+      if (passwordStrength.value < 3) {
+        showError('Wachtwoord voldoet niet aan de vereisten')
+        return
+      }
 
-  if (security.value.twoFactor !== undefined) {
-    confirmDialogConfig.value = {
-      title: security.value.twoFactor ? '2FA inschakelen' : '2FA uitschakelen',
-      message: security.value.twoFactor 
-        ? 'Weet je zeker dat je twee-factor authenticatie wilt inschakelen?'
-        : 'Weet je zeker dat je twee-factor authenticatie wilt uitschakelen?',
-      confirmText: security.value.twoFactor ? 'Inschakelen' : 'Uitschakelen',
-      onConfirm: async () => {
-        try {
-          await updateTwoFactor(security.value.twoFactor)
-        } catch (err: any) {
-          error.value = 'Er is een fout opgetreden bij het wijzigen van twee-factor authenticatie'
+      // Show confirmation dialog for password update
+      updateConfirmDialog({
+        title: 'Wachtwoord bijwerken',
+        message: 'Weet je zeker dat je je wachtwoord wilt bijwerken?',
+        confirmText: 'Bijwerken',
+        onConfirm: async () => {
+          try {
+            await updatePassword(security.value)
+            showSuccess('Wachtwoord succesvol bijgewerkt')
+            // Reset password fields
+            security.value.currentPassword = ''
+            security.value.newPassword = ''
+            security.value.confirmPassword = ''
+          } catch (error) {
+            showError('Fout bij bijwerken wachtwoord')
+          }
         }
-      }
+      })
+      return
     }
-    showConfirmDialog.value = true
+
+    // Check if 2FA status is changing
+    if (security.value.twoFactor !== originalSecurity.value.twoFactor) {
+      updateConfirmDialog({
+        title: security.value.twoFactor ? '2FA inschakelen' : '2FA uitschakelen',
+        message: security.value.twoFactor 
+          ? 'Weet je zeker dat je twee-factor authenticatie wilt inschakelen?'
+          : 'Weet je zeker dat je twee-factor authenticatie wilt uitschakelen?',
+        confirmText: security.value.twoFactor ? 'Inschakelen' : 'Uitschakelen',
+        onConfirm: async () => {
+          try {
+            await updateTwoFactor(security.value.twoFactor)
+            showSuccess('Twee-factor authenticatie succesvol bijgewerkt')
+            // Update original state after successful save
+            originalSecurity.value = { ...security.value }
+          } catch (error) {
+            showError('Fout bij bijwerken twee-factor authenticatie')
+            // Revert the change on error
+            security.value.twoFactor = originalSecurity.value.twoFactor
+          }
+        }
+      })
+      return
+    }
+
+    showSuccess('Instellingen opgeslagen')
+  } catch (error) {
+    showError('Fout bij opslaan instellingen')
   }
 }
 
@@ -709,16 +956,15 @@ const toggleEditing = () => {
 // Add function to handle section change
 const changeSection = (newSection: string) => {
   if (hasUnsavedChanges.value && activeSection.value === 'profile') {
-    confirmDialogConfig.value = {
+    updateConfirmDialog({
       title: 'Niet-opgeslagen wijzigingen',
       message: 'Je hebt niet-opgeslagen wijzigingen in je profiel. Weet je zeker dat je deze pagina wilt verlaten?',
       confirmText: 'Verlaten',
-      onConfirm: () => {
+      onConfirm: async () => {
         activeSection.value = newSection
         hasUnsavedChanges.value = false
       }
-    }
-    showConfirmDialog.value = true
+    })
   } else {
     activeSection.value = newSection
   }
