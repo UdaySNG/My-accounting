@@ -25,7 +25,7 @@
             <button
               v-for="section in sections"
               :key="section.id"
-              @click="activeSection = section.id"
+              @click="changeSection(section.id)"
               class="w-full flex items-center px-4 py-2 text-sm rounded-lg transition-colors"
               :class="activeSection === section.id ? 'bg-slack-purple text-white' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'"
             >
@@ -43,7 +43,7 @@
           <div class="flex justify-between items-center mb-4">
             <h2 class="text-lg font-semibold">Profiel</h2>
             <button 
-              @click="isEditing ? saveProfileSettings() : toggleEditing()"
+              @click="toggleEditing()"
               class="px-4 py-2 bg-slack-purple text-white rounded-lg hover:bg-slack-pink transition-colors flex items-center"
             >
               <span class="material-icons mr-2">{{ isEditing ? 'check' : 'edit' }}</span>
@@ -79,7 +79,7 @@
               </label>
               <PhoneNumberInput
                 v-model="profile.phone"
-                placeholder="Telefoonnummer"
+                placeholder="Telefoonnummer (of +31...)"
                 defaultCountry="NL"
                 @valid="(isValid) => phoneValid = isValid"
                 :disabled="!isEditing"
@@ -381,6 +381,14 @@
         </div>
       </div>
     </div>
+
+    <ConfirmationDialog
+      v-model="showConfirmDialog"
+      :title="confirmDialogConfig.title"
+      :message="confirmDialogConfig.message"
+      :confirm-text="confirmDialogConfig.confirmText"
+      @confirm="confirmDialogConfig.onConfirm"
+    />
   </div>
 </template>
 
@@ -410,6 +418,7 @@ import {
   type SecuritySettings
 } from '@/services/settingsService'
 import PhoneNumberInput from '@/components/PhoneNumberInput.vue'
+import ConfirmationDialog from '@/components/ConfirmationDialog.vue'
 
 const activeSection = ref('profile')
 const isEditing = ref(false)
@@ -478,6 +487,20 @@ const security = ref<SecuritySettings>({
   twoFactor: false
 })
 
+// Add to components
+const components = {
+  ConfirmationDialog
+}
+
+// Add state for confirmation dialog
+const showConfirmDialog = ref(false)
+const confirmDialogConfig = ref({
+  title: '',
+  message: '',
+  confirmText: 'Bevestigen',
+  onConfirm: () => {}
+})
+
 // Load settings when component mounts
 onMounted(async () => {
   try {
@@ -517,9 +540,15 @@ onMounted(async () => {
 })
 
 // Watch for changes in profile data
-watch(profile, () => {
+watch(profile, (newVal, oldVal) => {
   if (isEditing.value) {
-    hasUnsavedChanges.value = true
+    // Check if any field has actually changed
+    const hasChanges = 
+      newVal.name !== oldVal.name ||
+      newVal.email !== oldVal.email ||
+      newVal.phone !== oldVal.phone ||
+      newVal.company !== oldVal.company
+    hasUnsavedChanges.value = hasChanges
   }
 }, { deep: true })
 
@@ -628,27 +657,103 @@ const saveAppearanceSettings = async () => {
 
 // Save security settings
 const saveSecuritySettings = async () => {
-  try {
-    isLoading.value = true
-    error.value = null
-    await updatePassword(security.value)
-    await updateTwoFactor(security.value.twoFactor)
-    // Clear password fields after successful update
-    security.value.currentPassword = ''
-    security.value.newPassword = ''
-    security.value.confirmPassword = ''
-  } catch (err) {
-    error.value = 'Er is een fout opgetreden bij het opslaan van de beveiligingsinstellingen'
-    console.error('Error saving security settings:', err)
-  } finally {
-    isLoading.value = false
+  if (security.value.newPassword) {
+    confirmDialogConfig.value = {
+      title: 'Wachtwoord wijzigen',
+      message: 'Weet je zeker dat je je wachtwoord wilt wijzigen?',
+      confirmText: 'Wijzigen',
+      onConfirm: async () => {
+        try {
+          await updatePassword(security.value)
+          security.value.newPassword = ''
+          security.value.confirmPassword = ''
+        } catch (err: any) {
+          error.value = 'Er is een fout opgetreden bij het wijzigen van het wachtwoord'
+        }
+      }
+    }
+    showConfirmDialog.value = true
+  }
+
+  if (security.value.twoFactor !== undefined) {
+    confirmDialogConfig.value = {
+      title: security.value.twoFactor ? '2FA inschakelen' : '2FA uitschakelen',
+      message: security.value.twoFactor 
+        ? 'Weet je zeker dat je twee-factor authenticatie wilt inschakelen?'
+        : 'Weet je zeker dat je twee-factor authenticatie wilt uitschakelen?',
+      confirmText: security.value.twoFactor ? 'Inschakelen' : 'Uitschakelen',
+      onConfirm: async () => {
+        try {
+          await updateTwoFactor(security.value.twoFactor)
+        } catch (err: any) {
+          error.value = 'Er is een fout opgetreden bij het wijzigen van twee-factor authenticatie'
+        }
+      }
+    }
+    showConfirmDialog.value = true
   }
 }
 
 // Update the edit button click handler
 const toggleEditing = () => {
-  isEditing.value = true
+  if (!isEditing.value) {
+    // Starting to edit
+    isEditing.value = true
+    hasUnsavedChanges.value = true // Set to true when starting to edit
+  } else {
+    // Saving changes
+    saveProfileSettings()
+  }
 }
+
+// Add function to handle section change
+const changeSection = (newSection: string) => {
+  if (hasUnsavedChanges.value && activeSection.value === 'profile') {
+    confirmDialogConfig.value = {
+      title: 'Niet-opgeslagen wijzigingen',
+      message: 'Je hebt niet-opgeslagen wijzigingen in je profiel. Weet je zeker dat je deze pagina wilt verlaten?',
+      confirmText: 'Verlaten',
+      onConfirm: () => {
+        activeSection.value = newSection
+        hasUnsavedChanges.value = false
+      }
+    }
+    showConfirmDialog.value = true
+  } else {
+    activeSection.value = newSection
+  }
+}
+
+// Add watchers for appearance settings
+watch(appearance, async (newVal) => {
+  try {
+    await updateAppearanceSettings(newVal)
+    // Apply theme immediately
+    if (newVal.theme === 'dark') {
+      document.documentElement.classList.add('dark')
+    } else if (newVal.theme === 'light') {
+      document.documentElement.classList.remove('dark')
+    } else {
+      // System preference
+      if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.documentElement.classList.add('dark')
+      } else {
+        document.documentElement.classList.remove('dark')
+      }
+    }
+  } catch (err) {
+    console.error('Error saving appearance settings:', err)
+  }
+}, { deep: true })
+
+// Add watchers for notification settings
+watch(notifications, async (newVal) => {
+  try {
+    await updateNotificationSettings(newVal)
+  } catch (err) {
+    console.error('Error saving notification settings:', err)
+  }
+}, { deep: true })
 </script>
 
 <style scoped>

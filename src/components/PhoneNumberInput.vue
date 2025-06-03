@@ -18,6 +18,7 @@
         <!-- Country Dropdown -->
         <div
           v-if="isOpen"
+          ref="dropdownRef"
           class="absolute z-10 mt-1 w-64 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 max-h-60 overflow-y-auto"
         >
           <!-- Search -->
@@ -66,7 +67,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { parsePhoneNumber, CountryCode, getCountries, getCountryCallingCode } from 'libphonenumber-js'
 
 const props = defineProps<{
@@ -84,6 +85,7 @@ const emit = defineEmits<{
 const isOpen = ref(false)
 const searchQuery = ref('')
 const error = ref('')
+const dropdownRef = ref<HTMLDivElement | null>(null)
 const selectedCountry = ref<{
   code: CountryCode
   name: string
@@ -139,19 +141,15 @@ const handleInput = (event: Event) => {
   // Remove any non-digit characters except +
   value = value.replace(/[^\d+]/g, '')
 
-  // If it starts with +, treat as international number
+  // If it starts with +, try to detect country immediately
   if (value.startsWith('+')) {
-    try {
-      const phoneNumber = parsePhoneNumber(value)
-      selectedCountry.value = {
-        code: phoneNumber.country as CountryCode,
-        name: getCountryName(phoneNumber.country as CountryCode),
-        flag: getCountryFlag(phoneNumber.country as CountryCode),
-        dialCode: `+${phoneNumber.countryCallingCode}`
-      }
-      value = phoneNumber.formatNational()
-    } catch {
-      // Invalid number, keep as is
+    const countryCode = value.substring(1) // Remove the + sign
+    // Try to find a matching country code
+    const matchingCountry = countries.value.find(country => 
+      country.dialCode.substring(1).startsWith(countryCode)
+    )
+    if (matchingCountry) {
+      selectedCountry.value = matchingCountry
     }
   }
 
@@ -220,5 +218,21 @@ watch(() => props.modelValue, (newValue) => {
       // Invalid number, keep current country
     }
   }
+})
+
+// Handle clicks outside the dropdown
+const handleClickOutside = (event: MouseEvent) => {
+  if (dropdownRef.value && !dropdownRef.value.contains(event.target as Node)) {
+    isOpen.value = false
+  }
+}
+
+// Add and remove event listeners
+onMounted(() => {
+  document.addEventListener('mousedown', handleClickOutside)
+})
+
+onUnmounted(() => {
+  document.removeEventListener('mousedown', handleClickOutside)
 })
 </script> 

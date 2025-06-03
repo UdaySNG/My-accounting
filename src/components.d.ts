@@ -11,6 +11,7 @@ declare module 'vue' {
     AppointmentModal: typeof import('./components/AppointmentModal.vue')['default']
     ChangelogDialog: typeof import('./components/ChangelogDialog.vue')['default']
     ChatbotButton: typeof import('./components/ChatbotButton.vue')['default']
+    ConfirmationDialog: typeof import('./components/ConfirmationDialog.vue')['default']
     Footer: typeof import('./components/Footer.vue')['default']
     HelloWorld: typeof import('./components/HelloWorld.vue')['default']
     Layout: typeof import('./components/Layout.vue')['default']
