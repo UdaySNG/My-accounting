@@ -5,16 +5,16 @@
       <div class="flex space-x-2">
         <button 
           @click="showNewMessageModal = true"
-          class="px-4 py-2 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors flex items-center"
+          class="px-4 py-2 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-100 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors flex items-center"
         >
           <span class="material-icons text-lg mr-2">add</span>
           Nieuw bericht
         </button>
-        <button class="px-4 py-2 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors flex items-center">
+        <button class="px-4 py-2 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-100 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors flex items-center">
           <span class="material-icons text-lg mr-2">filter_list</span>
           Filter
         </button>
-        <button class="px-4 py-2 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors flex items-center">
+        <button class="px-4 py-2 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-100 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors flex items-center">
           <span class="material-icons text-lg mr-2">search</span>
           Zoeken
         </button>
@@ -24,13 +24,21 @@
     <div class="bg-white dark:bg-gray-800 rounded-lg shadow">
       <!-- Message Categories -->
       <div class="border-b border-gray-200 dark:border-gray-700">
-        <div class="flex space-x-4 px-6 py-4">
+        <div class="flex space-x-4 px-6 py-4 relative">
+          <div 
+            class="absolute bottom-0 h-0.5 bg-slack-purple transition-all duration-300"
+            :style="{
+              width: `${activeCategoryWidth}px`,
+              left: `${activeCategoryPosition}px`,
+            }"
+          ></div>
           <button
             v-for="category in categories"
             :key="category.id"
             @click="activeCategory = category.id"
             class="relative px-4 py-2 rounded-lg transition-colors"
-            :class="activeCategory === category.id ? 'text-slack-purple' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'"
+            :class="activeCategory === category.id ? 'text-slack-purple dark:text-white' : 'text-gray-600 dark:text-gray-200 hover:text-gray-900 dark:hover:text-white'"
+            ref="categoryRefs"
           >
             {{ category.name }}
             <span 
@@ -124,7 +132,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch, onUnmounted } from 'vue'
 import { useMessagesStore } from '../stores/messages'
 import NewMessageModal from '../components/NewMessageModal.vue'
 import type { Message } from '../services/messages'
@@ -132,6 +140,9 @@ import type { Message } from '../services/messages'
 const store = useMessagesStore()
 const showNewMessageModal = ref(false)
 const activeCategory = ref('all')
+const categoryRefs = ref<HTMLElement[]>([])
+const activeCategoryWidth = ref(0)
+const activeCategoryPosition = ref(0)
 
 const categories = ref([
   { id: 'all', name: 'Alle berichten', unreadCount: 0 },
@@ -209,10 +220,30 @@ async function handleMessageSent() {
   showNewMessageModal.value = false
 }
 
-onMounted(async () => {
-  await store.fetchMessages()
-  await store.fetchUnreadCount()
-  updateCategoryCounts()
+// Update category dimensions when active category changes
+const updateCategoryDimensions = () => {
+  if (categoryRefs.value) {
+    const activeIndex = categories.value.findIndex(cat => cat.id === activeCategory.value)
+    const element = categoryRefs.value[activeIndex]
+    if (element) {
+      activeCategoryWidth.value = element.offsetWidth
+      activeCategoryPosition.value = element.offsetLeft
+    }
+  }
+}
+
+// Watch for active category changes
+watch(activeCategory, () => {
+  updateCategoryDimensions()
+})
+
+onMounted(() => {
+  updateCategoryDimensions()
+  window.addEventListener('resize', updateCategoryDimensions)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', updateCategoryDimensions)
 })
 </script>
 

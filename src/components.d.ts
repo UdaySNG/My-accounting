@@ -16,6 +16,7 @@ declare module 'vue' {
     Layout: typeof import('./components/Layout.vue')['default']
     Navbar: typeof import('./components/Navbar.vue')['default']
     NewMessageModal: typeof import('./components/NewMessageModal.vue')['default']
+    PhoneNumberInput: typeof import('./components/PhoneNumberInput.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     Sidebar: typeof import('./components/Sidebar.vue')['default']

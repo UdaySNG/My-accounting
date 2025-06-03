@@ -27,6 +27,11 @@
         "icon": "bar_chart"
       },
       {
+        "id": "agenda",
+        "title": "Agenda",
+        "icon": "calendar_today"
+      },
+      {
         "id": "instellingen",
         "title": "Instellingen",
         "icon": "settings"
@@ -35,11 +40,6 @@
         "id": "help",
         "title": "Help",
         "icon": "help"
-      },
-      {
-        "id": "agenda",
-        "title": "Agenda",
-        "icon": "calendar_today"
       }
     ]
   }

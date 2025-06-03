@@ -89,8 +89,9 @@ const getRoute = (id: string): string => {
     case 'boekhouder': return '/mijn-boekhouder'
     case 'rapportages': return '/rapportages'
     case 'instellingen': return '/instellingen'
-    case 'help': return '/help'
     case 'agenda': return '/agenda'
+    case 'help': return '/help'
+ 
     default: return '/'
   }
 }

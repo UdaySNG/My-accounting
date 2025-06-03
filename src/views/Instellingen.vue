@@ -1,168 +1,380 @@
 <template>
   <div class="p-6">
-    <h1 class="text-2xl font-bold mb-4 text-gray-900 dark:text-white">Instellingen</h1>
-    <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
-      <div class="space-y-8">
-        <!-- Profiel Sectie -->
-        <div>
-          <h2 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Profiel</h2>
+    <div class="flex justify-between items-center mb-6">
+      <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Instellingen</h1>
+    </div>
+
+    <!-- Error message -->
+    <div v-if="error" class="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
+      {{ error }}
+    </div>
+
+    <!-- Loading overlay -->
+    <div v-if="isLoading" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-lg">
+        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-slack-purple"></div>
+      </div>
+    </div>
+
+    <!-- Settings Sections -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <!-- Navigation -->
+      <div class="lg:col-span-1">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4">
+          <nav class="space-y-1">
+            <button
+              v-for="section in sections"
+              :key="section.id"
+              @click="activeSection = section.id"
+              class="w-full flex items-center px-4 py-2 text-sm rounded-lg transition-colors"
+              :class="activeSection === section.id ? 'bg-slack-purple text-white' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'"
+            >
+              <span class="material-icons mr-3">{{ section.icon }}</span>
+              {{ section.title }}
+            </button>
+          </nav>
+        </div>
+      </div>
+
+      <!-- Content -->
+      <div class="lg:col-span-2">
+        <!-- Profile Settings -->
+        <div v-if="activeSection === 'profile'" class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
+          <div class="flex justify-between items-center mb-4">
+            <h2 class="text-lg font-semibold">Profiel</h2>
+            <button 
+              @click="isEditing ? saveProfileSettings() : toggleEditing()"
+              class="px-4 py-2 bg-slack-purple text-white rounded-lg hover:bg-slack-pink transition-colors flex items-center"
+            >
+              <span class="material-icons mr-2">{{ isEditing ? 'check' : 'edit' }}</span>
+              {{ isEditing ? 'Opslaan' : 'Bewerken' }}
+            </button>
+          </div>
           <div class="space-y-4">
             <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Bedrijfsnaam</label>
-              <input type="text" class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white" value="Mijn Bedrijf B.V.">
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Naam <span class="text-red-500">*</span>
+              </label>
+              <input 
+                type="text" 
+                v-model="profile.name" 
+                :disabled="!isEditing"
+                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white disabled:bg-gray-100 dark:disabled:bg-gray-800 disabled:cursor-not-allowed"
+              >
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email</label>
-              <input type="email" class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white" value="info@mijnbedrijf.nl">
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Email <span class="text-red-500">*</span>
+              </label>
+              <input 
+                type="email" 
+                v-model="profile.email" 
+                :disabled="!isEditing"
+                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white disabled:bg-gray-100 dark:disabled:bg-gray-800 disabled:cursor-not-allowed"
+              >
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">BTW Nummer</label>
-              <input type="text" class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white" value="NL123456789B01">
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Telefoonnummer
+              </label>
+              <PhoneNumberInput
+                v-model="profile.phone"
+                placeholder="Telefoonnummer"
+                defaultCountry="NL"
+                @valid="(isValid) => phoneValid = isValid"
+                :disabled="!isEditing"
+              />
             </div>
-          </div>
-        </div>
-
-        <!-- Weergave Sectie -->
-        <div>
-          <h2 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Weergave</h2>
-          <div class="inline-flex border-2 border-gray-200 dark:border-gray-700 rounded-lg relative">
-            <!-- Sliding indicator -->
-            <div 
-              class="absolute h-[calc(100%-4px)] top-0.5 bg-slack-purple rounded transition-all duration-300 ease-in-out"
-              :class="{
-                'w-[calc(33.333%-2px)] left-0.5': currentMode === 'light',
-                'w-[calc(33.333%-2px)] left-[calc(33.333%+0.5px)]': currentMode === 'dark',
-                'w-[calc(33.333%-2px)] left-[calc(66.666%+0.5px)]': currentMode === 'system'
-              }"
-            ></div>
-
-            <!-- Light Mode -->
-            <button 
-              @click="setThemeMode('light')"
-              class="relative px-4 py-0.5 rounded-l text-sm font-medium transition-colors duration-300 ease-in-out z-10"
-              :class="currentMode === 'light' ? 'text-white' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'"
-            >
-              <span class="material-icons text-base">light_mode</span>
-            </button>
-
-            <div class="w-px bg-gray-200 dark:bg-gray-700 relative z-10"></div>
-
-            <!-- Dark Mode -->
-            <button 
-              @click="setThemeMode('dark')"
-              class="relative px-4 py-0.5 text-sm font-medium transition-colors duration-300 ease-in-out z-10"
-              :class="currentMode === 'dark' ? 'text-white' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'"
-            >
-              <span class="material-icons text-base">dark_mode</span>
-            </button>
-
-            <div class="w-px bg-gray-200 dark:bg-gray-700 relative z-10"></div>
-
-            <!-- System Mode -->
-            <button 
-              @click="setThemeMode('system')"
-              class="relative px-4 py-0.5 rounded-r text-sm font-medium transition-colors duration-300 ease-in-out z-10"
-              :class="currentMode === 'system' ? 'text-white' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'"
-            >
-              <span class="material-icons text-base">computer</span>
-            </button>
-          </div>
-        </div>
-
-        <!-- Taal Sectie -->
-        <div>
-          <h2 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Taal</h2>
-          <div class="relative">
-            <select 
-              v-model="language"
-              class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white appearance-none cursor-pointer"
-            >
-              <option value="nl">Nederlands</option>
-              <option value="en">English</option>
-              <option value="de">Deutsch</option>
-              <option value="fr">Français</option>
-            </select>
-            <span class="material-icons absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400 pointer-events-none">
-              expand_more
-            </span>
-          </div>
-        </div>
-
-        <!-- Notificaties Sectie -->
-        <div>
-          <h2 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Notificaties</h2>
-          <div class="space-y-4">
-            <div class="flex items-center justify-between">
-              <div>
-                <span class="text-gray-700 dark:text-gray-300">Email notificaties</span>
-                <p class="text-sm text-gray-500 dark:text-gray-400">Ontvang updates over nieuwe facturen en betalingen</p>
-              </div>
-              <button 
-                @click="emailNotifications = !emailNotifications"
-                class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-300 ease-in-out"
-                :class="emailNotifications ? 'bg-slack-purple' : 'bg-gray-200 dark:bg-gray-700'"
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Bedrijfsnaam
+              </label>
+              <input 
+                type="text" 
+                v-model="profile.company" 
+                :disabled="!isEditing"
+                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white disabled:bg-gray-100 dark:disabled:bg-gray-800 disabled:cursor-not-allowed"
               >
-                <span 
-                  class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-300 ease-in-out"
-                  :class="emailNotifications ? 'translate-x-6' : 'translate-x-1'"
-                ></span>
-              </button>
-            </div>
-
-            <div class="flex items-center justify-between">
-              <div>
-                <span class="text-gray-700 dark:text-gray-300">Browser notificaties</span>
-                <p class="text-sm text-gray-500 dark:text-gray-400">Krijg meldingen in je browser</p>
-              </div>
-              <button 
-                @click="browserNotifications = !browserNotifications"
-                class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-300 ease-in-out"
-                :class="browserNotifications ? 'bg-slack-purple' : 'bg-gray-200 dark:bg-gray-700'"
-              >
-                <span 
-                  class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-300 ease-in-out"
-                  :class="browserNotifications ? 'translate-x-6' : 'translate-x-1'"
-                ></span>
-              </button>
             </div>
           </div>
         </div>
 
-        <!-- Algemene Voorkeuren -->
-        <div>
-          <h2 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Algemene Voorkeuren</h2>
+        <!-- Notifications -->
+        <div v-if="activeSection === 'notifications'" class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
+          <div class="flex justify-between items-center mb-4">
+            <h2 class="text-lg font-semibold">Notificaties</h2>
+          </div>
           <div class="space-y-4">
             <div class="flex items-center justify-between">
               <div>
-                <span class="text-gray-700 dark:text-gray-300">Automatisch opslaan</span>
-                <p class="text-sm text-gray-500 dark:text-gray-400">Sla wijzigingen automatisch op</p>
+                <h3 class="font-medium text-gray-900 dark:text-white">Email notificaties</h3>
+                <p class="text-sm text-gray-500 dark:text-gray-400">Ontvang updates via email</p>
               </div>
-              <button 
-                @click="autoSave = !autoSave"
-                class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-300 ease-in-out"
-                :class="autoSave ? 'bg-slack-purple' : 'bg-gray-200 dark:bg-gray-700'"
-              >
-                <span 
-                  class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-300 ease-in-out"
-                  :class="autoSave ? 'translate-x-6' : 'translate-x-1'"
-                ></span>
-              </button>
+              <label class="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" v-model="notifications.email" class="sr-only peer">
+                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-slack-purple/20 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-slack-purple"></div>
+              </label>
             </div>
-
             <div class="flex items-center justify-between">
               <div>
-                <span class="text-gray-700 dark:text-gray-300">Twee-factor authenticatie</span>
+                <h3 class="font-medium text-gray-900 dark:text-white">Push notificaties</h3>
+                <p class="text-sm text-gray-500 dark:text-gray-400">Ontvang meldingen in de browser</p>
+              </div>
+              <label class="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" v-model="notifications.push" class="sr-only peer">
+                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-slack-purple/20 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-slack-purple"></div>
+              </label>
+            </div>
+            <div class="flex items-center justify-between">
+              <div>
+                <h3 class="font-medium text-gray-900 dark:text-white">Herinneringen</h3>
+                <p class="text-sm text-gray-500 dark:text-gray-400">Herinneringen voor afspraken en deadlines</p>
+              </div>
+              <label class="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" v-model="notifications.reminders" class="sr-only peer">
+                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-slack-purple/20 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-slack-purple"></div>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Appearance -->
+        <div v-if="activeSection === 'appearance'" class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
+          <div class="flex justify-between items-center mb-4">
+            <h2 class="text-lg font-semibold">Weergave</h2>
+          </div>
+          <div class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Thema</label>
+              <select v-model="appearance.theme" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                <option value="system">Systeem standaard</option>
+                <option value="light">Licht</option>
+                <option value="dark">Donker</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Taal</label>
+              <select v-model="appearance.language" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                <option value="nl">Nederlands</option>
+                <option value="en">English</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Tijdzone</label>
+              <select v-model="appearance.timezone" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                <option value="Europe/Amsterdam">Amsterdam (GMT+1)</option>
+                <option value="Europe/London">London (GMT)</option>
+                <option value="America/New_York">New York (GMT-5)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Security -->
+        <div v-if="activeSection === 'security'" class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
+          <div class="flex justify-between items-center mb-4">
+            <h2 class="text-lg font-semibold">Beveiliging</h2>
+          </div>
+          <div class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Huidig wachtwoord</label>
+              <input type="password" v-model="security.currentPassword" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nieuw wachtwoord</label>
+              <input type="password" v-model="security.newPassword" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Bevestig nieuw wachtwoord</label>
+              <input type="password" v-model="security.confirmPassword" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+            </div>
+            <div class="flex items-center justify-between">
+              <div>
+                <h3 class="font-medium text-gray-900 dark:text-white">Twee-factor authenticatie</h3>
                 <p class="text-sm text-gray-500 dark:text-gray-400">Extra beveiliging voor je account</p>
               </div>
-              <button 
-                @click="twoFactor = !twoFactor"
-                class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-300 ease-in-out"
-                :class="twoFactor ? 'bg-slack-purple' : 'bg-gray-200 dark:bg-gray-700'"
-              >
-                <span 
-                  class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-300 ease-in-out"
-                  :class="twoFactor ? 'translate-x-6' : 'translate-x-1'"
-                ></span>
+              <label class="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" v-model="security.twoFactor" class="sr-only peer">
+                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-slack-purple/20 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-slack-purple"></div>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Fiscal Settings -->
+        <div v-if="activeSection === 'fiscal'" class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
+          <div class="flex justify-between items-center mb-4">
+            <h2 class="text-lg font-semibold">Fiscale Instellingen</h2>
+          </div>
+          <div class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Boekjaar <span class="text-red-500">*</span>
+              </label>
+              <select v-model="fiscal.fiscalYear" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                <option value="calendar">Kalenderjaar (1 jan - 31 dec)</option>
+                <option value="fiscal">Fiscaal jaar (1 mei - 30 apr)</option>
+                <option value="custom">Aangepast</option>
+              </select>
+            </div>
+            <div v-if="fiscal.fiscalYear === 'custom'">
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Startdatum boekjaar <span class="text-red-500">*</span>
+              </label>
+              <input type="date" v-model="fiscal.fiscalYearStart" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                BTW nummer <span class="text-red-500">*</span>
+              </label>
+              <input type="text" v-model="fiscal.vatNumber" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                KVK nummer <span class="text-red-500">*</span>
+              </label>
+              <input type="text" v-model="fiscal.kvkNumber" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                BTW aangifte frequentie <span class="text-red-500">*</span>
+              </label>
+              <select v-model="fiscal.vatFrequency" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                <option value="monthly">Maandelijks</option>
+                <option value="quarterly">Per kwartaal</option>
+                <option value="yearly">Jaarlijks</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Invoice Settings -->
+        <div v-if="activeSection === 'invoice'" class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
+          <div class="flex justify-between items-center mb-4">
+            <h2 class="text-lg font-semibold">Facturatie Instellingen</h2>
+          </div>
+          <div class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Factuur nummering <span class="text-red-500">*</span>
+              </label>
+              <select v-model="invoice.numbering" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                <option value="yearly">Per jaar (2024-001)</option>
+                <option value="continuous">Doorlopend (0001)</option>
+                <option value="custom">Aangepast formaat</option>
+              </select>
+            </div>
+            <div v-if="invoice.numbering === 'custom'">
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Aangepast formaat <span class="text-red-500">*</span>
+              </label>
+              <input type="text" v-model="invoice.customFormat" placeholder="Bijv: INV-{YYYY}-{NNNN}" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Betaaltermijn (dagen) <span class="text-red-500">*</span>
+              </label>
+              <input type="number" v-model="invoice.paymentTerm" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Factuur template
+              </label>
+              <select v-model="invoice.template" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                <option value="default">Standaard template</option>
+                <option value="modern">Modern design</option>
+                <option value="minimal">Minimaal design</option>
+              </select>
+            </div>
+            <div class="flex items-center justify-between">
+              <div>
+                <h3 class="font-medium text-gray-900 dark:text-white">Automatische herinneringen</h3>
+                <p class="text-sm text-gray-500 dark:text-gray-400">Stuur automatisch herinneringen voor openstaande facturen</p>
+              </div>
+              <label class="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" v-model="invoice.autoReminders" class="sr-only peer">
+                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-slack-purple/20 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-slack-purple"></div>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Backup Settings -->
+        <div v-if="activeSection === 'backup'" class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
+          <div class="flex justify-between items-center mb-4">
+            <h2 class="text-lg font-semibold">Backup Instellingen</h2>
+          </div>
+          <div class="space-y-4">
+            <div class="flex items-center justify-between">
+              <div>
+                <h3 class="font-medium text-gray-900 dark:text-white">Automatische backups</h3>
+                <p class="text-sm text-gray-500 dark:text-gray-400">Maak dagelijks een backup van je gegevens</p>
+              </div>
+              <label class="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" v-model="backup.autoBackup" class="sr-only peer">
+                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-slack-purple/20 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-slack-purple"></div>
+              </label>
+            </div>
+            <div v-if="backup.autoBackup">
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Backup frequentie
+              </label>
+              <select v-model="backup.frequency" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                <option value="daily">Dagelijks</option>
+                <option value="weekly">Wekelijks</option>
+                <option value="monthly">Maandelijks</option>
+              </select>
+            </div>
+            <div class="flex items-center justify-between">
+              <div>
+                <h3 class="font-medium text-gray-900 dark:text-white">Backup notificaties</h3>
+                <p class="text-sm text-gray-500 dark:text-gray-400">Ontvang een bevestiging na elke backup</p>
+              </div>
+              <label class="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" v-model="backup.notifications" class="sr-only peer">
+                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-slack-purple/20 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-slack-purple"></div>
+              </label>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Bewaarperiode backups
+              </label>
+              <select v-model="backup.retention" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                <option value="30">30 dagen</option>
+                <option value="90">90 dagen</option>
+                <option value="365">1 jaar</option>
+                <option value="custom">Aangepast</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Integrations -->
+        <div v-if="activeSection === 'integrations'" class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
+          <h2 class="text-lg font-semibold mb-4">Integraties</h2>
+          <div class="space-y-4">
+            <div class="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+              <div class="flex items-center space-x-4">
+                <span class="material-icons text-gray-600 dark:text-gray-400">account_balance</span>
+                <div>
+                  <h3 class="font-medium text-gray-900 dark:text-white">Exact Online</h3>
+                  <p class="text-sm text-gray-500 dark:text-gray-400">Synchroniseer met je boekhouding</p>
+                </div>
+              </div>
+              <button class="px-4 py-2 bg-slack-purple text-white rounded-lg hover:bg-slack-pink transition-colors">
+                Verbinden
+              </button>
+            </div>
+            <div class="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+              <div class="flex items-center space-x-4">
+                <span class="material-icons text-gray-600 dark:text-gray-400">payments</span>
+                <div>
+                  <h3 class="font-medium text-gray-900 dark:text-white">Mollie</h3>
+                  <p class="text-sm text-gray-500 dark:text-gray-400">Online betalingen verwerken</p>
+                </div>
+              </div>
+              <button class="px-4 py-2 bg-slack-purple text-white rounded-lg hover:bg-slack-pink transition-colors">
+                Verbinden
               </button>
             </div>
           </div>
@@ -173,25 +385,274 @@
 </template>
 
 <script setup lang="ts">
-import { useDarkMode } from '../composables/useDarkMode'
-import { ref } from 'vue'
+import { ref, onMounted, onBeforeUnmount, watch } from 'vue'
+import { 
+  getProfileSettings, 
+  updateProfileSettings,
+  getFiscalSettings,
+  updateFiscalSettings,
+  getInvoiceSettings,
+  updateInvoiceSettings,
+  getBackupSettings,
+  updateBackupSettings,
+  getNotificationSettings,
+  updateNotificationSettings,
+  getAppearanceSettings,
+  updateAppearanceSettings,
+  updatePassword,
+  updateTwoFactor,
+  type ProfileSettings,
+  type FiscalSettings,
+  type InvoiceSettings,
+  type BackupSettings,
+  type NotificationSettings,
+  type AppearanceSettings,
+  type SecuritySettings
+} from '@/services/settingsService'
+import PhoneNumberInput from '@/components/PhoneNumberInput.vue'
 
-const { isDark, currentMode, setThemeMode } = useDarkMode()
+const activeSection = ref('profile')
+const isEditing = ref(false)
+const isLoading = ref(false)
+const error = ref<string | null>(null)
+const phoneValid = ref(true)
+const hasUnsavedChanges = ref(false)
 
-// State voor verschillende instellingen
-const language = ref('nl')
-const emailNotifications = ref(true)
-const browserNotifications = ref(false)
-const autoSave = ref(true)
-const twoFactor = ref(false)
+const sections = [
+  { id: 'profile', title: 'Profiel', icon: 'person' },
+  { id: 'notifications', title: 'Notificaties', icon: 'notifications' },
+  { id: 'appearance', title: 'Weergave', icon: 'palette' },
+  { id: 'security', title: 'Beveiliging', icon: 'security' },
+  { id: 'fiscal', title: 'Fiscaal', icon: 'account_balance' },
+  { id: 'invoice', title: 'Facturatie', icon: 'receipt_long' },
+  { id: 'backup', title: 'Backup', icon: 'backup' },
+  { id: 'integrations', title: 'Integraties', icon: 'extension' }
+]
+
+const profile = ref<ProfileSettings>({
+  name: '',
+  email: '',
+  phone: '',
+  company: ''
+})
+
+const fiscal = ref<FiscalSettings>({
+  fiscalYear: 'calendar',
+  fiscalYearStart: '',
+  vatNumber: '',
+  kvkNumber: '',
+  vatFrequency: 'quarterly'
+})
+
+const invoice = ref<InvoiceSettings>({
+  numbering: 'yearly',
+  customFormat: '',
+  paymentTerm: 30,
+  template: 'default',
+  autoReminders: true
+})
+
+const backup = ref<BackupSettings>({
+  autoBackup: true,
+  frequency: 'daily',
+  notifications: true,
+  retention: '90'
+})
+
+const notifications = ref<NotificationSettings>({
+  email: true,
+  push: true,
+  reminders: true
+})
+
+const appearance = ref<AppearanceSettings>({
+  theme: 'system',
+  language: 'nl',
+  timezone: 'Europe/Amsterdam'
+})
+
+const security = ref<SecuritySettings>({
+  currentPassword: '',
+  newPassword: '',
+  confirmPassword: '',
+  twoFactor: false
+})
+
+// Load settings when component mounts
+onMounted(async () => {
+  try {
+    isLoading.value = true
+    error.value = null
+    
+    // Load all settings
+    const [
+      profileData,
+      fiscalData,
+      invoiceData,
+      backupData,
+      notificationData,
+      appearanceData
+    ] = await Promise.all([
+      getProfileSettings(),
+      getFiscalSettings(),
+      getInvoiceSettings(),
+      getBackupSettings(),
+      getNotificationSettings(),
+      getAppearanceSettings()
+    ])
+
+    // Update refs with loaded data
+    profile.value = profileData
+    fiscal.value = fiscalData
+    invoice.value = invoiceData
+    backup.value = backupData
+    notifications.value = notificationData
+    appearance.value = appearanceData
+  } catch (err) {
+    error.value = 'Er is een fout opgetreden bij het laden van de instellingen'
+    console.error('Error loading settings:', err)
+  } finally {
+    isLoading.value = false
+  }
+})
+
+// Watch for changes in profile data
+watch(profile, () => {
+  if (isEditing.value) {
+    hasUnsavedChanges.value = true
+  }
+}, { deep: true })
+
+// Handle beforeunload event
+const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+  if (hasUnsavedChanges.value) {
+    e.preventDefault()
+    e.returnValue = ''
+  }
+}
+
+// Add and remove event listeners
+onMounted(() => {
+  window.addEventListener('beforeunload', handleBeforeUnload)
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('beforeunload', handleBeforeUnload)
+})
+
+// Save profile settings
+const saveProfileSettings = async () => {
+  try {
+    isLoading.value = true
+    error.value = null
+    await updateProfileSettings(profile.value)
+    isEditing.value = false
+    hasUnsavedChanges.value = false
+  } catch (err) {
+    error.value = 'Er is een fout opgetreden bij het opslaan van de profielinstellingen'
+    console.error('Error saving profile settings:', err)
+  } finally {
+    isLoading.value = false
+  }
+}
+
+// Save fiscal settings
+const saveFiscalSettings = async () => {
+  try {
+    isLoading.value = true
+    error.value = null
+    await updateFiscalSettings(fiscal.value)
+  } catch (err) {
+    error.value = 'Er is een fout opgetreden bij het opslaan van de fiscale instellingen'
+    console.error('Error saving fiscal settings:', err)
+  } finally {
+    isLoading.value = false
+  }
+}
+
+// Save invoice settings
+const saveInvoiceSettings = async () => {
+  try {
+    isLoading.value = true
+    error.value = null
+    await updateInvoiceSettings(invoice.value)
+  } catch (err) {
+    error.value = 'Er is een fout opgetreden bij het opslaan van de facturatie instellingen'
+    console.error('Error saving invoice settings:', err)
+  } finally {
+    isLoading.value = false
+  }
+}
+
+// Save backup settings
+const saveBackupSettings = async () => {
+  try {
+    isLoading.value = true
+    error.value = null
+    await updateBackupSettings(backup.value)
+  } catch (err) {
+    error.value = 'Er is een fout opgetreden bij het opslaan van de backup instellingen'
+    console.error('Error saving backup settings:', err)
+  } finally {
+    isLoading.value = false
+  }
+}
+
+// Save notification settings
+const saveNotificationSettings = async () => {
+  try {
+    isLoading.value = true
+    error.value = null
+    await updateNotificationSettings(notifications.value)
+  } catch (err) {
+    error.value = 'Er is een fout opgetreden bij het opslaan van de notificatie instellingen'
+    console.error('Error saving notification settings:', err)
+  } finally {
+    isLoading.value = false
+  }
+}
+
+// Save appearance settings
+const saveAppearanceSettings = async () => {
+  try {
+    isLoading.value = true
+    error.value = null
+    await updateAppearanceSettings(appearance.value)
+  } catch (err) {
+    error.value = 'Er is een fout opgetreden bij het opslaan van de weergave instellingen'
+    console.error('Error saving appearance settings:', err)
+  } finally {
+    isLoading.value = false
+  }
+}
+
+// Save security settings
+const saveSecuritySettings = async () => {
+  try {
+    isLoading.value = true
+    error.value = null
+    await updatePassword(security.value)
+    await updateTwoFactor(security.value.twoFactor)
+    // Clear password fields after successful update
+    security.value.currentPassword = ''
+    security.value.newPassword = ''
+    security.value.confirmPassword = ''
+  } catch (err) {
+    error.value = 'Er is een fout opgetreden bij het opslaan van de beveiligingsinstellingen'
+    console.error('Error saving security settings:', err)
+  } finally {
+    isLoading.value = false
+  }
+}
+
+// Update the edit button click handler
+const toggleEditing = () => {
+  isEditing.value = true
+}
 </script>
 
 <style scoped>
 .material-icons {
   font-size: 20px;
-}
-
-select {
-  background-image: none;
 }
 </style> 
