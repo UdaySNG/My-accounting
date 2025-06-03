@@ -9,13 +9,13 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     AppointmentModal: typeof import('./components/AppointmentModal.vue')['default']
-    ChangelogButton: typeof import('./components/ChangelogButton.vue')['default']
     ChangelogDialog: typeof import('./components/ChangelogDialog.vue')['default']
     ChatbotButton: typeof import('./components/ChatbotButton.vue')['default']
     Footer: typeof import('./components/Footer.vue')['default']
     HelloWorld: typeof import('./components/HelloWorld.vue')['default']
     Layout: typeof import('./components/Layout.vue')['default']
     Navbar: typeof import('./components/Navbar.vue')['default']
+    NewMessageModal: typeof import('./components/NewMessageModal.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     Sidebar: typeof import('./components/Sidebar.vue')['default']
